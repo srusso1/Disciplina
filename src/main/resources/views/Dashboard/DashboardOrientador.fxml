@@ -143,22 +143,6 @@
                            </children>
                         </HBox>
       
-                              <HBox alignment="CENTER_LEFT" spacing="15">
-                                  <ImageView fitHeight="40.0" fitWidth="40.0">
-                                      <image>
-                                          <Image url="@../../images/iconLibro.png" />
-                                      </image>
-                                  </ImageView>
-                                  <Button fx:id="btnPrestamos" onAction="#clickListadoFaltas" styleClass="sidebar-button" text="Listado de faltas">
-                                      <cursor>
-                                          <Cursor fx:constant="HAND" />
-                                      </cursor>
-                              <font>
-                                 <Font size="16.0" />
-                              </font>
-                                  </Button>
-                              </HBox>
-      
                           </children>
                      <VBox.margin>
                         <Insets />

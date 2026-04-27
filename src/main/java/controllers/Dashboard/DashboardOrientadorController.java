@@ -31,17 +31,12 @@ public class DashboardOrientadorController {
 
     @FXML
     void clickConsultas(ActionEvent event) {
-
+        ManagerView.cargarCentro(contenedor, Paths.CONSULTAS);
     }
 
     @FXML
     void clickInicio(ActionEvent event) {
-
-    }
-
-    @FXML
-    void clickListadoFaltas(ActionEvent event) {
-
+        ManagerView.cargarCentro(contenedor, Paths.INICIO);
     }
 
     @FXML
@@ -54,6 +49,11 @@ public class DashboardOrientadorController {
         if(Alertas.mostrarConfirmacion("¿Estás seguro que deseas cerrar sesión?")){
             ManagerView.cargarVista(contenedorPrincipal, Paths.LOGIN);
         }
+    }
+
+    @FXML
+    void initialize() {
+        ManagerView.cargarCentro(contenedor, Paths.INICIO);
     }
 
 }

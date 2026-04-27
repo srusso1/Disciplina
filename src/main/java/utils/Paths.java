@@ -13,4 +13,9 @@ public class Paths {
 
     // ORIENTADOR
     public static final String REGISTRAR_FALTA = "/views/Orientador/RegistrarFalta.fxml";
+    public static final String CONSULTAS = "/views/Orientador/Consultas.fxml";
+    public static final String INICIO = "/views/Orientador/Inicio.fxml";
+
+    // RECTORIA
+    public static final String ESTADISTICAS = "/views/Rectoria/Estadisticas.fxml";
 }

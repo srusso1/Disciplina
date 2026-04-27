@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane styleClass="main-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Orientador.InicioController">
+
+    <stylesheets>
+        <String fx:value="/styles/Orientador/RegistrarFaltaStyle.css" />
+    </stylesheets>
+
+    <children>
+        <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
+
+            <children>
+                <!-- Encabezado de bienvenida -->
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="titulo-seccion" text="¡Bienvenido!">
+                            <font>
+                                <Font name="Roboto Medium" size="36.0" />
+                            </font>
+                        </Label>
+                        <Label styleClass="descripcion-seccion" text="Panel de control del módulo de disciplina - Aquí puedes gestionar y consultar las faltas disciplinarias registradas en el sistema.">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- Estadísticas -->
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="form-section-title" text="Estadísticas Generales">
+                            <font>
+                                <Font name="Roboto Medium" size="18.0" />
+                            </font>
+                        </Label>
+
+                        <HBox spacing="20.0">
+                            <children>
+                                <!-- Tarjeta 1: Total de Faltas -->
+                                <VBox styleClass="form-card" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                    </padding>
+                                    <spacing>10.0</spacing>
+                                    <children>
+                                        <Label styleClass="form-label" text="TOTAL DE FALTAS REGISTRADAS">
+                                            <font>
+                                                <Font name="Roboto Medium" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lblTotalFaltas" styleClass="form-value" text="0">
+                                            <font>
+                                                <Font name="Roboto Medium" size="42.0" />
+                                            </font>
+                                        </Label>
+                                        <Label styleClass="descripcion-seccion" text="Cantidad total de faltas en el sistema">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+
+                                <!-- Tarjeta 2: Caso Más Común -->
+                                <VBox styleClass="form-card" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                    </padding>
+                                    <spacing>10.0</spacing>
+                                    <children>
+                                        <Label styleClass="form-label" text="CASO MÁS COMÚN">
+                                            <font>
+                                                <Font name="Roboto Medium" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lblCasoMasComun" styleClass="form-value" text="N/A">
+                                            <font>
+                                                <Font name="Roboto Medium" size="28.0" />
+                                            </font>
+                                        </Label>
+                                        <Label styleClass="descripcion-seccion" text="Tipo de caso con mayor frecuencia">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+
+                                <!-- Tarjeta 3: Lugar con Más Faltas -->
+                                <VBox styleClass="form-card" HBox.hgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                                    </padding>
+                                    <spacing>10.0</spacing>
+                                    <children>
+                                        <Label styleClass="form-label" text="LUGAR CON MÁS FALTAS">
+                                            <font>
+                                                <Font name="Roboto Medium" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lblLugarMasFaltas" styleClass="form-value" text="N/A">
+                                            <font>
+                                                <Font name="Roboto Medium" size="24.0" />
+                                            </font>
+                                        </Label>
+                                        <Label styleClass="descripcion-seccion" text="Sitio donde ocurren más faltas">
+                                            <font>
+                                                <Font size="12.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- Información sobre módulos -->
+                <VBox spacing="15.0">
+                    <children>
+                        <Label styleClass="form-section-title" text="Módulos Disponibles">
+                            <font>
+                                <Font name="Roboto Medium" size="18.0" />
+                            </font>
+                        </Label>
+
+                        <!-- Módulo Registrar Falta -->
+                        <VBox style="-fx-effect: null;" styleClass="form-card">
+                            <padding>
+                                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                            </padding>
+                            <spacing>10.0</spacing>
+                            <children>
+                                <Label text="📋 Registrar Falta Disciplinaria">
+                                    <font>
+                                        <Font size="20.0" />
+                                    </font>
+                                    <style>-fx-text-fill: #0d5f8e;</style>
+                                </Label>
+                                <Label text="Módulo para registrar nuevas faltas disciplinarias. Permite seleccionar el estudiante, tipo de falta, caso, lugar donde ocurrió y otros detalles relevantes. También incluye campos opcionales para descargos y acciones restaurativas. Este módulo es esencial para mantener un registro detallado de todos los eventos disciplinarios que ocurran en la institución." wrapText="true">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                    <style>-fx-text-fill: #495057;</style>
+                                </Label>
+                            </children>
+                        </VBox>
+
+                        <!-- Módulo Consultas -->
+                        <VBox style="-fx-effect: null;" styleClass="form-card">
+                            <padding>
+                                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                            </padding>
+                            <spacing>10.0</spacing>
+                            <children>
+                                <Label text="🔍 Consultas de Faltas">
+                                    <font>
+                                        <Font size="20.0" />
+                                    </font>
+                                    <style>-fx-text-fill: #0d5f8e;</style>
+                                </Label>
+                                <Label text="Módulo avanzado de búsqueda y consulta de faltas registradas. Permite filtrar por estudiante (con autocompletado), rango de fechas, tipo de falta, caso y lugar de suceso. Los resultados se muestran en una tabla clara y al seleccionar un registro, se abre un modal detallado con información completa incluyendo datos del estudiante, descargos y acciones restaurativas." wrapText="true">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                    <style>-fx-text-fill: #495057;</style>
+                                </Label>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <!-- Pie de página -->
+                <VBox spacing="8.0">
+                    <children>
+                        <Label styleClass="descripcion-seccion" text="Sistema de Gestión de Disciplina - Constructores de Paz">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label styleClass="descripcion-seccion" text="Para más información o reportar problemas, contacta al administrador del sistema.">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

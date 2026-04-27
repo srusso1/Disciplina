@@ -29,9 +29,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0, 0, 2);
 }
 
-.form-card:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 3);
-}
 
 /* TÍTULOS DE SECCIÓN */
 .form-section-title {

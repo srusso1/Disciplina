@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane styleClass="main-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Rectoria.EstadisticasController">
+
+    <stylesheets>
+        <String fx:value="/styles/Orientador/RegistrarFaltaStyle.css" />
+    </stylesheets>
+
+    <children>
+      <ScrollPane fitToWidth="true" hbarPolicy="NEVER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <content>
+              <VBox spacing="20.0">
+                  <padding>
+                      <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                  </padding>
+      
+                  <children>
+                      <!-- Encabezado -->
+                      <VBox spacing="8.0">
+                          <children>
+                              <Label styleClass="titulo-seccion" text="Estadísticas de Faltas Disciplinarias">
+                                  <font>
+                                      <Font name="Roboto Medium" size="32.0" />
+                                  </font>
+                              </Label>
+                              <Label styleClass="descripcion-seccion" text="Análisis completo de faltas registradas con múltiples perspectivas">
+                                  <font>
+                                      <Font name="Roboto Regular" size="14.0" />
+                                  </font>
+                              </Label>
+                          </children>
+                      </VBox>
+      
+                      <!-- Filtros de Fecha -->
+                      <VBox spacing="15.0" styleClass="form-card">
+                          <padding>
+                              <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                          </padding>
+                          <children>
+                              <Label styleClass="form-section-title" text="Filtrar por Fechas">
+                                  <font>
+                                      <Font name="Roboto Medium" size="16.0" />
+                                  </font>
+                              </Label>
+                              <HBox spacing="15.0">
+                                  <children>
+                                      <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                          <children>
+                                              <Label styleClass="form-label" text="Desde" />
+                                              <DatePicker fx:id="dateDesde" styleClass="form-control" />
+                                          </children>
+                                      </VBox>
+                                      <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                          <children>
+                                              <Label styleClass="form-label" text="Hasta" />
+                                              <DatePicker fx:id="dateHasta" styleClass="form-control" />
+                                          </children>
+                                      </VBox>
+                                  </children>
+                              </HBox>
+                          </children>
+                      </VBox>
+      
+                      <!-- Grid de Gráficos -->
+                      <GridPane hgap="20.0" vgap="20.0">
+                          <columnConstraints>
+                              <ColumnConstraints percentWidth="50.0" />
+                              <ColumnConstraints percentWidth="50.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints minHeight="350.0" prefHeight="350.0" />
+                              <RowConstraints minHeight="350.0" prefHeight="350.0" />
+                              <RowConstraints minHeight="350.0" prefHeight="350.0" />
+                              <RowConstraints minHeight="350.0" prefHeight="350.0" />
+                          </rowConstraints>
+      
+                          <children>
+                              <!-- Gráfico 1: Faltas por Caso -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Faltas por Caso">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <BarChart fx:id="chartFaltasPorCaso" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <NumberAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <CategoryAxis side="LEFT" />
+                                          </yAxis>
+                                      </BarChart>
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 2: Distribución por Tipo de Falta -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Distribución por Tipo de Falta">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <PieChart fx:id="chartFaltasPorTipo" legendVisible="true" prefHeight="300.0" VBox.vgrow="ALWAYS" />
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 3: Faltas por Lugar -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Faltas por Lugar">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <BarChart fx:id="chartFaltasPorLugar" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <CategoryAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <NumberAxis side="LEFT" />
+                                          </yAxis>
+                                      </BarChart>
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 4: Faltas por Grado -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Faltas por Grado">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <BarChart fx:id="chartFaltasPorGrado" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <CategoryAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <NumberAxis side="LEFT" />
+                                          </yAxis>
+                                      </BarChart>
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 5: Evolución Temporal -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Evolución Temporal (Mensual)">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <LineChart fx:id="chartEvolucionTemporal" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <CategoryAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <NumberAxis side="LEFT" />
+                                          </yAxis>
+                                      </LineChart>
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 6: Top 10 Estudiantes -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Top 10 Estudiantes con Más Faltas">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <BarChart fx:id="chartTop10Estudiantes" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <CategoryAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <NumberAxis side="LEFT" />
+                                          </yAxis>
+                                      </BarChart>
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 7: Faltas por Género -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Faltas por Género">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <BarChart fx:id="chartFaltasPorGenero" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <CategoryAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <NumberAxis side="LEFT" />
+                                          </yAxis>
+                                      </BarChart>
+                                  </children>
+                              </VBox>
+      
+                              <!-- Gráfico 8: Top 10 Docentes en Aula -->
+                              <VBox styleClass="form-card" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                  <padding>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </padding>
+                                  <children>
+                                      <Label styleClass="form-section-title" text="Top 10 Docentes (Faltas en Aula)">
+                                          <font>
+                                              <Font name="Roboto Medium" size="14.0" />
+                                          </font>
+                                      </Label>
+                                      <BarChart fx:id="chartTop10Docentes" legendVisible="false" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                                          <xAxis>
+                                              <CategoryAxis side="BOTTOM" />
+                                          </xAxis>
+                                          <yAxis>
+                                              <NumberAxis side="LEFT" />
+                                          </yAxis>
+                                      </BarChart>
+                                  </children>
+                              </VBox>
+                          </children>
+                      </GridPane>
+                  </children>
+              </VBox>
+         </content>
+      </ScrollPane>
+    </children>
+</AnchorPane>

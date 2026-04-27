@@ -45,7 +45,7 @@
       
                      <VBox alignment="CENTER">
                          <children>
-                             <Label text="BOOK TECH">
+                             <Label text="DISCIPLINA+">
                                  <font>
                                      <Font name="Roboto Medium" size="36" />
                                  </font>
@@ -94,23 +94,6 @@
                                  </image>
                               </ImageView>
                               <Button fx:id="btnInicio" onAction="#clickInicio" styleClass="sidebar-button" text="Inicio">
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                                 <font>
-                                    <Font size="16.0" />
-                                 </font>
-                              </Button>
-                           </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="15">
-                           <children>
-                              <ImageView fitHeight="40.0" fitWidth="40.0">
-                                 <image>
-                                    <Image url="@../../images/iconBusqueda.png" />
-                                 </image>
-                              </ImageView>
-                              <Button fx:id="btnConsulta" onAction="#clickInventario" styleClass="sidebar-button" text="Inventario">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
