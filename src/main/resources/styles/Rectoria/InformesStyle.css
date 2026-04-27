@@ -1,0 +1,131 @@
+/* Estilos para el módulo de Informes */
+
+/* Títulos y labels */
+.titulo-seccion {
+    -fx-text-fill: #1f2937;
+    -fx-font-weight: bold;
+}
+
+.subtitulo-seccion {
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+}
+
+.label-filtro {
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+}
+
+/* ComboBox */
+.combo-filtro {
+    -fx-font-size: 12px;
+    -fx-padding: 8px;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4px;
+    -fx-background-color: white;
+}
+
+.combo-filtro:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+}
+
+/* DatePicker */
+.date-picker-filtro {
+    -fx-font-size: 12px;
+    -fx-padding: 8px;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4px;
+}
+
+.date-picker-filtro:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+}
+
+/* Botones */
+.btn-primary {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 16px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2563eb;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #1d4ed8;
+}
+
+.btn-secondary {
+    -fx-background-color: #6b7280;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 16px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #4b5563;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: #374151;
+}
+
+.btn-success {
+    -fx-background-color: #10b981;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.btn-success:hover {
+    -fx-background-color: #059669;
+}
+
+.btn-success:pressed {
+    -fx-background-color: #047857;
+}
+
+/* Tabla */
+.tabla-datos {
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 4px;
+}
+
+.tabla-datos .column-header {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.tabla-datos .table-row-cell {
+    -fx-padding: 8px;
+    -fx-font-size: 11px;
+}
+
+.tabla-datos .table-row-cell:selected {
+    -fx-background-color: #dbeafe;
+}
+
+.tabla-datos .table-row-cell:hover {
+    -fx-background-color: #f0f9ff;
+}
+
+/* Separadores */
+.separator {
+    -fx-border-color: #e5e7eb;
+}
+

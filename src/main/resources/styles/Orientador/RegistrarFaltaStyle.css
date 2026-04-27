@@ -1,0 +1,212 @@
+/* ESTILOS REGISTRAR FALTA - Bootstrap Theme */
+
+/* Contenedor Principal */
+.main-container {
+    -fx-background-color: #f8f9fa;
+}
+
+/* TÍTULOS Y DESCRIPCIONES */
+.titulo-seccion {
+    -fx-text-fill: #1a3a52;
+    -fx-font-family: "Roboto Medium";
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.descripcion-seccion {
+    -fx-text-fill: #6c757d;
+    -fx-font-family: "Roboto Regular";
+    -fx-font-size: 14px;
+    -fx-line-spacing: 1.5;
+}
+
+/* TARJETAS DE FORMULARIO */
+.form-card {
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0, 0, 2);
+}
+
+.form-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 3);
+}
+
+/* TÍTULOS DE SECCIÓN */
+.form-section-title {
+    -fx-text-fill: #0d5f8e;
+    -fx-font-family: "Roboto Medium";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* ETIQUETAS DE FORMULARIO */
+.form-label {
+    -fx-text-fill: #495057;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.5;
+}
+
+/* VALORES MOSTRADOS */
+.form-value {
+    -fx-text-fill: #1a3a52;
+    -fx-font-family: "Roboto Medium";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* CAJA DE INFORMACIÓN */
+.info-box {
+    -fx-border-color: #e7f3f7;
+    -fx-border-radius: 6;
+    -fx-background-color: #f0f7fb;
+}
+
+/* CONTROLES DE FORMULARIO */
+.form-control {
+    -fx-padding: 8 12 8 12;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+    -fx-text-fill: #212529;
+    -fx-prompt-text-fill: #adb5bd;
+    -fx-background-color: #ffffff;
+}
+
+.form-control:focused {
+    -fx-border-color: #0d5f8e;
+    -fx-border-width: 2;
+    -fx-padding: 7 11 7 11;
+    -fx-effect: dropshadow(gaussian, rgba(13, 95, 142, 0.25), 4, 0, 0, 0);
+}
+
+/* CAMPOS DE TEXTO */
+TextField {
+    -fx-padding: 8 12 8 12;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+
+TextField:focused {
+    -fx-border-color: #0d5f8e;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(13, 95, 142, 0.25), 4, 0, 0, 0);
+}
+
+TextField:disabled {
+    -fx-text-fill: #6c757d;
+    -fx-opacity: 0.65;
+}
+
+/* COMBOBOX */
+ComboBox,
+ComboBox:focused {
+    -fx-padding: 0;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+    -fx-background-color: #ffffff;
+    -fx-cell-size: 45px;
+}
+
+ComboBox:focused {
+    -fx-border-color: #0d5f8e;
+    -fx-border-width: 2;
+}
+
+ComboBox .list-view {
+    -fx-padding: 0;
+    -fx-border-color: #dee2e6;
+    -fx-background-color: #ffffff;
+}
+
+ComboBox .list-cell {
+    -fx-padding: 8 12 8 12;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #212529;
+}
+
+ComboBox .list-cell:hover {
+    -fx-background-color: #e7f3f7;
+}
+
+
+/* BOTONES */
+Button {
+    -fx-padding: 12 30 12 30;
+    -fx-font-family: "Roboto Medium";
+    -fx-font-size: 15px;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+    -fx-text-fill: #ffffff;
+}
+
+.btn {
+    -fx-min-width: 100px;
+    -fx-min-height: 45px;
+}
+
+.btn-primary {
+    -fx-background-color: #0d5f8e;
+    -fx-border-color: #0d5f8e;
+    -fx-border-width: 1;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #0a4a6a;
+    -fx-effect: dropshadow(gaussian, rgba(13, 95, 142, 0.4), 6, 0, 0, 2);
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #083d57;
+}
+
+.btn-primary:disabled {
+    -fx-background-color: #6c757d;
+    -fx-border-color: #6c757d;
+    -fx-opacity: 0.65;
+    -fx-cursor: default;
+}
+
+/* RESPUESTA VISUAL PARA VALIDACIONES */
+.form-control.error {
+    -fx-border-color: #dc3545;
+}
+
+.form-control.success {
+    -fx-border-color: #28a745;
+}
+
+/* CONTEXT MENU */
+ContextMenu {
+    -fx-skin: "javafx.scene.control.skin.ContextMenuSkin";
+}
+
+ContextMenu .menu-item {
+    -fx-padding: 5 15 5 15;
+    -fx-font-family: "Roboto";
+    -fx-font-size: 13px;
+}
+
+ContextMenu .menu-item:focused {
+    -fx-background-color: #0d5f8e;
+    -fx-text-fill: #ffffff;
+}
+
+/* ANIMACIONES Y EFECTOS */
+Label {
+    -fx-font-family: "Roboto";
+}
+

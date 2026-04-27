@@ -1,0 +1,17 @@
+.graficaBarrasGenero {
+    -fx-padding: 10;
+}
+
+.graficaBarrasGenero .default-color0.chart-bar {
+    -fx-bar-fill: #64B5F6; /* azul claro */
+    -fx-bar-width: 0.4; /* barras más delgadas */
+}
+
+.graficaBarrasGenero .default-color1.chart-bar {
+    -fx-bar-fill: #F48FB1; /* rosa claro */
+    -fx-bar-width: 0.4; /* barras más delgadas */
+}
+
+.graficaBarrasCategoria {
+    -fx-padding: 10;
+}

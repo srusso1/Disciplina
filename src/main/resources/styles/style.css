@@ -1,0 +1,234 @@
+.is-invalid {
+    -fx-border-color: #dc3545;
+    -fx-border-width: 1.5px;
+}
+
+.is-valid {
+    -fx-border-color: #198754;
+    -fx-border-width: 1.5px;
+}
+
+.popover {
+    -fx-background-color: transparent;
+}
+
+.popover > .border {
+    -fx-background-color: #dc3545; /* rojo error */
+    -fx-background-radius: 4;
+    -fx-padding: 1;
+}
+
+.popover > .content {
+    -fx-background-color: #dc3545;
+    -fx-background-radius: 6;
+    -fx-padding: 6 6;
+}
+
+.popover .label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.containerInfo{
+    -fx-background-color: #f9fafc;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.sidebar {
+    -fx-background-color: #1E6FB8;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: rgba(255,255,255,0.15);
+}
+
+.sidebar-button.active {
+    -fx-background-color: white;
+    -fx-text-fill: #1E6FB8;
+    -fx-background-radius: 8;
+}
+
+.header {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2933;
+}
+
+.titulo-seccion {
+    -fx-text-fill: #1f2937;
+    -fx-font-weight: bold;
+}
+
+.subtitulo-seccion {
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+}
+
+.descripcion-seccion {
+    -fx-text-fill: #4b5563;
+}
+
+.text-success {
+    -fx-text-fill: #2e7d32;
+}
+
+.text-white {
+    -fx-text-fill: white;
+}
+
+.label-filtro {
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+}
+
+.combo-filtro,
+.date-picker-filtro {
+    -fx-font-size: 12px;
+    -fx-padding: 8px;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4px;
+    -fx-background-color: white;
+}
+
+.combo-filtro:focused,
+.date-picker-filtro:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-success {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 16px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.btn-primary {
+    -fx-background-color: #3b82f6;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2563eb;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #1d4ed8;
+}
+
+.btn-secondary {
+    -fx-background-color: #6b7280;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #4b5563;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: #374151;
+}
+
+.btn-success {
+    -fx-background-color: #10b981;
+}
+
+.btn-success:hover {
+    -fx-background-color: #059669;
+}
+
+.btn-success:pressed {
+    -fx-background-color: #047857;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+}
+
+.tabla-datos {
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 4px;
+    -fx-selection-bar: #bfdbfe;
+    -fx-selection-bar-non-focused: #dbeafe;
+}
+
+.tabla-datos .column-header {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.tabla-datos .table-row-cell {
+    -fx-padding: 8px;
+    -fx-font-size: 11px;
+}
+
+.tabla-datos .table-row-cell:selected {
+    -fx-background-color: #dbeafe;
+}
+
+.tabla-datos .table-row-cell:selected .table-cell,
+.tabla-datos .table-row-cell:selected .text {
+    -fx-text-fill: #1f2937;
+}
+
+.tabla-datos .table-row-cell:hover {
+    -fx-background-color: #f0f9ff;
+}
+
+
+/* Quitar borde azul al hacer focus */
+.table-view:focused {
+    -fx-background-insets: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Quitar borde azul de filas/celdas */
+.table-row-cell:focused,
+.table-cell:focused {
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+}
+
+/* Texto de la tabla un poco más grande */
+.table-view {
+    -fx-font-size: 14px;
+}
+
+/* Encabezados de columnas */
+.table-view .column-header {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Texto de las celdas */
+.table-cell {
+    -fx-font-size: 16px;
+    -fx-alignment: CENTER;
+}
+
+/* Quitar fondo azul de selección (por si acaso) */
+
+
+

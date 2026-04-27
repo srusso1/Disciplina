@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="contenedorPrincipal" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Dashboard.DashboardOrientadorController">
+   <children>
+      <BorderPane fx:id="contenedor" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      
+          <!-- ================= HEADER ================= -->
+          <top>
+              <HBox alignment="CENTER" prefHeight="120" spacing="20" styleClass="header">
+      
+                  <children>
+                  <Button alignment="CENTER_RIGHT" focusTraversable="false" mnemonicParsing="false" onAction="#clickSalir" style="-fx-background-color: transparent;">
+                     <graphic>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" focusTraversable="true" pickOnBounds="true" preserveRatio="true" styleClass="btnSalir">
+                           <image>
+                              <Image url="@../../images/exit.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Region prefHeight="120.0" prefWidth="283.0" HBox.hgrow="ALWAYS" />
+                      <ImageView fitHeight="120.0" fitWidth="120.0" preserveRatio="true">
+                          <image>
+                              <Image url="@../../images/escudo.png" />
+                          </image>
+                      </ImageView>
+      
+                      <VBox alignment="CENTER">
+                          <children>
+                              <Label text="DISCIPLINA+">
+                                  <font>
+                                      <Font name="Roboto Medium" size="36" />
+                                  </font>
+                              </Label>
+      
+                              <Label styleClass="header-title" text="Constructores de paz">
+                                  <font>
+                                      <Font name="Roboto Regular" size="16" />
+                                  </font>
+                              </Label>
+                          </children>
+                      </VBox>
+                  <Region prefHeight="120.0" prefWidth="411.0" HBox.hgrow="ALWAYS" />
+                  </children>
+      
+                  <padding>
+                      <Insets bottom="10" top="10" />
+                  </padding>
+              </HBox>
+          </top>
+      
+          <!-- ================= SIDEBAR ================= -->
+          <left>
+              <VBox alignment="TOP_CENTER" spacing="25" styleClass="sidebar">
+      
+                  <children>
+                      <ImageView fitHeight="120" fitWidth="120" preserveRatio="true">
+                          <image>
+                              <Image url="@../../images/bibliotecario.png" />
+                          </image>
+                      </ImageView>
+      
+                      <Label text="Orientador" textFill="WHITE">
+                          <font>
+                              <Font name="Roboto Medium" size="22" />
+                          </font>
+                      </Label>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets right="20.0" />
+                     </VBox.margin>
+                  </Separator>
+      
+                      <VBox alignment="CENTER_LEFT" spacing="35.0">
+                          <children>
+      
+                              <HBox alignment="CENTER_LEFT" spacing="15">
+                                  <ImageView fitHeight="50.0" fitWidth="50.0">
+                                      <image>
+                                          <Image url="@../../images/iconHome.png" />
+                                      </image>
+                                  </ImageView>
+                                  <Button fx:id="btnInicio" onAction="#clickInicio" styleClass="sidebar-button" text="Inicio">
+                                      <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                      </cursor>
+                              <font>
+                                 <Font size="16.0" />
+                              </font>
+                                  </Button>
+                              </HBox>
+      
+                              <HBox alignment="CENTER_LEFT" spacing="15">
+                                  <ImageView fitHeight="45.0" fitWidth="45.0">
+                                      <image>
+                                          <Image url="@../../images/iconBusqueda.png" />
+                                      </image>
+                                  </ImageView>
+                                  <Button fx:id="btnConsulta" onAction="#clickRegistrarFalta" styleClass="sidebar-button" text="Registrar falta">
+                                      <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                      </cursor>
+                              <font>
+                                 <Font size="16.0" />
+                              </font>
+                                  </Button>
+                              </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                           <children>
+                              <ImageView fitHeight="40.0" fitWidth="40.0">
+                                 <image>
+                                    <Image url="@../../images/virtual.png" />
+                                 </image>
+                              </ImageView>
+                              <Button fx:id="btnBibliotecaVirtual" onAction="#clickConsultas" styleClass="sidebar-button" text="Consultas">
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+      
+                              <HBox alignment="CENTER_LEFT" spacing="15">
+                                  <ImageView fitHeight="40.0" fitWidth="40.0">
+                                      <image>
+                                          <Image url="@../../images/iconLibro.png" />
+                                      </image>
+                                  </ImageView>
+                                  <Button fx:id="btnPrestamos" onAction="#clickListadoFaltas" styleClass="sidebar-button" text="Listado de faltas">
+                                      <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                      </cursor>
+                              <font>
+                                 <Font size="16.0" />
+                              </font>
+                                  </Button>
+                              </HBox>
+      
+                          </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                      </VBox>
+                  </children>
+      
+                  <padding>
+                      <Insets bottom="40.0" left="25.0" top="80.0" />
+                  </padding>
+              </VBox>
+          </left>
+      
+      </BorderPane>
+   </children>
+</AnchorPane>

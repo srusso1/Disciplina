@@ -1,0 +1,20 @@
+.context-menu {
+    -fx-background-color: white;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 5;
+}
+
+.context-menu .menu-item {
+    -fx-padding: 10 15;
+    -fx-font-size: 16px;
+}
+
+.context-menu .menu-item:hover {
+    -fx-background-color: #1E6FB8;
+}
+
+.context-menu .menu-item:hover .label {
+    -fx-text-fill: white;
+}
