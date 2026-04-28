@@ -1,16 +1,129 @@
+.estadisticas-view {
+    -fx-background-color: #f8f9fa;
+}
+
+.estadisticas-chart {
+    -fx-padding: 8;
+}
+
+.estadisticas-chart .chart-content {
+    -fx-padding: 8 8 8 4;
+}
+
+.estadisticas-chart .chart-plot-background {
+    -fx-background-color: #ffffff;
+}
+
+.estadisticas-chart .chart-horizontal-grid-lines,
+.estadisticas-chart .chart-vertical-grid-lines {
+    -fx-stroke: #e9ecef;
+}
+
+.estadisticas-chart .axis {
+    -fx-tick-label-font: 13px "Roboto";
+}
+
+.estadisticas-chart .axis .tick-label {
+    -fx-font-size: 13px;
+    -fx-fill: #495057;
+}
+
+.estadisticas-chart:focused .axis .tick-label,
+.estadisticas-chart:hover .axis .tick-label {
+    -fx-font-size: 13px;
+}
+
+.estadisticas-chart .chart-title {
+    -fx-font-size: 14px;
+    -fx-font-family: "Roboto Medium";
+    -fx-fill: #1a3a52;
+}
+
+.estadisticas-chart .chart-legend {
+    -fx-font-size: 12px;
+    -fx-font-family: "Roboto";
+}
+
+.estadisticas-chart .chart-legend-item {
+    -fx-font-size: 12px;
+}
+
+.estadisticas-chart .data {
+    -fx-border-color: transparent;
+}
+
+.grafico-caso .default-color0.chart-bar {
+    -fx-bar-fill: #295C7A;
+}
+
+.grafico-lugar .default-color0.chart-bar {
+    -fx-bar-fill: #3D8DBC;
+}
+
+.grafico-grado .default-color0.chart-bar {
+    -fx-bar-fill: #47A3A5;
+}
+
+.grafico-estudiantes .default-color0.chart-bar {
+    -fx-bar-fill: #5FB49C;
+}
+
+.grafico-genero .default-color0.chart-bar {
+    -fx-bar-fill: #D9A441;
+}
+
+.grafico-docentes .default-color0.chart-bar {
+    -fx-bar-fill: #D97D54;
+}
+
+.grafico-tipo .default-color0.chart-pie {
+    -fx-pie-color: #295C7A;
+}
+
+.grafico-tipo .default-color1.chart-pie {
+    -fx-pie-color: #3D8DBC;
+}
+
+.grafico-tipo .default-color2.chart-pie {
+    -fx-pie-color: #47A3A5;
+}
+
+.grafico-tipo .default-color3.chart-pie {
+    -fx-pie-color: #5FB49C;
+}
+
+.grafico-tipo .default-color4.chart-pie {
+    -fx-pie-color: #D9A441;
+}
+
+.grafico-tipo .default-color5.chart-pie {
+    -fx-pie-color: #D97D54;
+}
+
+.grafico-tipo .default-color6.chart-pie {
+    -fx-pie-color: #C56B8B;
+}
+
+.grafico-tipo .default-color7.chart-pie {
+    -fx-pie-color: #8F6BB3;
+}
+
+.grafico-evolucion .default-color0.chart-series-line {
+    -fx-stroke: #295C7A;
+}
+
+.grafico-evolucion .default-color0.chart-line-symbol {
+    -fx-background-color: #295C7A, white;
+}
+
+.grafico-tipo .chart-legend-item-symbol {
+    -fx-background-insets: 0;
+}
+
 .graficaBarrasGenero {
     -fx-padding: 10;
 }
 
-.graficaBarrasGenero .default-color0.chart-bar {
-    -fx-bar-fill: #64B5F6; /* azul claro */
-    -fx-bar-width: 0.4; /* barras más delgadas */
-}
-
-.graficaBarrasGenero .default-color1.chart-bar {
-    -fx-bar-fill: #F48FB1; /* rosa claro */
-    -fx-bar-width: 0.4; /* barras más delgadas */
-}
 
 .graficaBarrasCategoria {
     -fx-padding: 10;

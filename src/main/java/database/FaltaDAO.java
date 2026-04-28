@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -591,5 +592,343 @@ public class FaltaDAO {
         }
         return resultado;
     }
-}
 
+    public List<Integer> obtenerAniosRegistrados() {
+        List<Integer> anios = new ArrayList<>();
+        // Obtener años de tabla faltas Y de tabla faltas_historico
+        String sql = "SELECT DISTINCT anio FROM (" +
+                     "  SELECT CAST(strftime('%Y', fecha) AS INTEGER) AS anio FROM faltas WHERE fecha IS NOT NULL " +
+                     "  UNION " +
+                     "  SELECT DISTINCT año AS anio FROM faltas_historico" +
+                     ") combined ORDER BY anio ASC";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return anios;
+
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                anios.add(rs.getInt("anio"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener años registrados: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos de años registrados: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+
+        return anios;
+    }
+
+    /**
+     * Obtiene faltas con datos históricos incluidos.
+     * Combina faltas actuales (tabla faltas) con datos históricos (tabla faltas_historico)
+     * Retorna FaltaConsultaRow para mantener compatibilidad con comparativas
+     */
+    public List<FaltaConsultaRow> consultarFaltasConHistorico(Integer idCaso) {
+        List<FaltaConsultaRow> filas = new ArrayList<>();
+
+        // Consultar datos actuales de la tabla faltas
+        List<FaltaConsultaRow> faltasActuales = consultarFaltas(null, null, null, null, idCaso, null);
+        filas.addAll(faltasActuales);
+
+        // Consultar datos históricos de la tabla faltas_historico
+        String sql = "SELECT CAST(fh.año AS TEXT) || '-' || PRINTF('%02d', fh.mes) || '-01' AS fecha, " +
+                     "fh.cantidad, c.nombre_caso, fh.id_caso " +
+                     "FROM faltas_historico fh " +
+                     "INNER JOIN casos c ON c.id = fh.id_caso " +
+                     "WHERE 1 = 1";
+
+        if (idCaso != null) {
+            sql += " AND fh.id_caso = ?";
+        }
+        sql += " ORDER BY fh.año DESC, fh.mes ASC";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return filas;
+
+            pstmt = conn.prepareStatement(sql);
+            if (idCaso != null) {
+                pstmt.setInt(1, idCaso);
+            }
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String fechaISO = rs.getString("fecha");
+                String fechaUI = Fechas.convertirAUI(fechaISO);
+                if (fechaUI == null) {
+                    fechaUI = fechaISO;
+                }
+
+                filas.add(new FaltaConsultaRow(
+                        0,  // id (no aplica para históricos)
+                        0,  // id_estudiante (no aplica)
+                        0,  // id_lugar (no aplica)
+                        fechaUI,
+                        "Histórico - " + rs.getInt("cantidad") + " caso(s)",  // estudiante (descripción)
+                        0,  // grado
+                        "",  // identificacion
+                        "1",  // tipo_falta
+                        rs.getString("nombre_caso"),
+                        "",  // lugar
+                        "",  // docente
+                        "",  // descargo
+                        ""   // accion_restaurativa
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar faltas con histórico: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos de consulta con histórico: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+
+        return filas;
+    }
+
+    /**
+     * Obtiene faltas para comparativas, combinando datos actuales (faltas) con históricos (faltas_historico)
+     * Retorna datos en formato que permite comparativas mes-a-mes entre años
+     */
+    public List<FaltaConsultaRow> obtenerFaltasComparativa(Integer idCaso) {
+        List<FaltaConsultaRow> filas = new ArrayList<>();
+
+        String sql = "SELECT " +
+                     "    f.id, " +
+                     "    f.id_lugar, " +
+                     "    f.fecha, " +
+                     "    0 AS id_estudiante, " +
+                     "    'Falta registrada' AS estudiante, " +
+                     "    0 AS grado, " +
+                     "    '' AS identificacion, " +
+                     "    '1' AS tipo_falta, " +
+                     "    c.nombre_caso AS caso, " +
+                     "    l.nombre_lugar AS lugar, " +
+                     "    '' AS docente, " +
+                     "    '' AS descargo, " +
+                     "    '' AS accion_restaurativa, " +
+                     "    1 AS cantidad_falta " +
+                     "FROM faltas f " +
+                     "INNER JOIN casos c ON c.id = f.id_caso " +
+                     "INNER JOIN lugares l ON l.id = f.id_lugar " +
+                     "WHERE f.fecha IS NOT NULL " +
+                     (idCaso != null ? "AND f.id_caso = ? " : "") +
+                     "UNION ALL " +
+                     "SELECT " +
+                     "    fh.id, " +
+                     "    0 AS id_lugar, " +
+                     "    CAST(fh.año AS TEXT) || '-' || PRINTF('%02d', fh.mes) || '-01' AS fecha, " +
+                     "    0 AS id_estudiante, " +
+                     "    'Datos históricos' AS estudiante, " +
+                     "    0 AS grado, " +
+                     "    '' AS identificacion, " +
+                     "    '1' AS tipo_falta, " +
+                     "    c.nombre_caso AS caso, " +
+                     "    '' AS lugar, " +
+                     "    '' AS docente, " +
+                     "    '' AS descargo, " +
+                     "    '' AS accion_restaurativa, " +
+                     "    fh.cantidad AS cantidad_falta " +
+                     "FROM faltas_historico fh " +
+                     "INNER JOIN casos c ON c.id = fh.id_caso " +
+                     "WHERE 1 = 1 " +
+                     (idCaso != null ? "AND fh.id_caso = ? " : "") +
+                     "ORDER BY fecha DESC";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return filas;
+
+            pstmt = conn.prepareStatement(sql);
+
+            int paramIndex = 1;
+            if (idCaso != null) {
+                pstmt.setInt(paramIndex++, idCaso);
+                pstmt.setInt(paramIndex, idCaso);
+            }
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String fechaISO = rs.getString("fecha");
+                String fechaUI = convertirFechaAlFormato(fechaISO);
+                int cantidadFalta = rs.getInt("cantidad_falta");
+
+                // Para la visualización, agregar información de cantidad
+                String descripcionEstudiante = rs.getString("estudiante");
+                if ("Datos históricos".equals(descripcionEstudiante)) {
+                    descripcionEstudiante = "Histórico (" + cantidadFalta + ")";
+                }
+
+                filas.add(new FaltaConsultaRow(
+                        rs.getInt("id"),
+                        rs.getInt("id_estudiante"),
+                        rs.getInt("id_lugar"),
+                        fechaUI,
+                        descripcionEstudiante,
+                        rs.getInt("grado"),
+                        rs.getString("identificacion"),
+                        rs.getString("tipo_falta"),
+                        rs.getString("caso"),
+                        rs.getString("lugar"),
+                        rs.getString("docente"),
+                        rs.getString("descargo"),
+                        rs.getString("accion_restaurativa")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener faltas para comparativa: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos de comparativa: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+
+        return filas;
+    }
+
+    /**
+     * Obtiene conteo de faltas por mes y año para comparativas
+     * Combina datos de tabla faltas (contidos por fecha) con faltas_historico (agregados)
+     */
+    public Map<Integer, Map<Integer, Integer>> obtenerConteoPorMesYAnio(Integer idCaso) {
+        Map<Integer, Map<Integer, Integer>> resultado = new HashMap<>();
+
+        // Procesar datos de tabla faltas (contar por mes/año de fecha registrada)
+        String sqlFaltas = "SELECT " +
+                          "    CAST(strftime('%m', f.fecha) AS INTEGER) AS mes, " +
+                          "    CAST(strftime('%Y', f.fecha) AS INTEGER) AS anio, " +
+                          "    COUNT(*) AS cantidad " +
+                          "FROM faltas f " +
+                          "WHERE f.fecha IS NOT NULL " +
+                          (idCaso != null ? "AND f.id_caso = ? " : "") +
+                          "GROUP BY CAST(strftime('%Y', f.fecha) AS INTEGER), CAST(strftime('%m', f.fecha) AS INTEGER)";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return resultado;
+
+            pstmt = conn.prepareStatement(sqlFaltas);
+            if (idCaso != null) {
+                pstmt.setInt(1, idCaso);
+            }
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int mes = rs.getInt("mes");
+                int anio = rs.getInt("anio");
+                int cantidad = rs.getInt("cantidad");
+
+                if (!resultado.containsKey(mes)) {
+                    resultado.put(mes, new HashMap<>());
+                }
+                resultado.get(mes).put(anio, cantidad);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener conteo de faltas: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+
+        // Procesar datos de tabla faltas_historico (usar cantidad directa)
+        String sqlHistorico = "SELECT " +
+                             "    fh.mes, " +
+                             "    fh.año AS anio, " +
+                             "    fh.cantidad " +
+                             "FROM faltas_historico fh " +
+                             "WHERE 1 = 1 " +
+                             (idCaso != null ? "AND fh.id_caso = ? " : "");
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return resultado;
+
+            pstmt = conn.prepareStatement(sqlHistorico);
+            if (idCaso != null) {
+                pstmt.setInt(1, idCaso);
+            }
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int mes = rs.getInt("mes");
+                int anio = rs.getInt("anio");
+                int cantidad = rs.getInt("cantidad");
+
+                if (!resultado.containsKey(mes)) {
+                    resultado.put(mes, new HashMap<>());
+                }
+                int actual = resultado.get(mes).getOrDefault(anio, 0);
+                resultado.get(mes).put(anio, actual + cantidad);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener conteo histórico: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos histórico: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+
+        return resultado;
+    }
+
+    /**
+     * Convierte fecha en formato ISO (yyyy-MM-dd) a formato UI (dd/MM/yyyy)
+     */
+    private String convertirFechaAlFormato(String fechaISO) {
+        if (fechaISO == null || fechaISO.isEmpty()) {
+            return "";
+        }
+        try {
+            String[] partes = fechaISO.split("-");
+            if (partes.length >= 3) {
+                return partes[2] + "/" + partes[1] + "/" + partes[0];
+            }
+        } catch (Exception e) {
+            System.err.println("Error al convertir fecha: " + e.getMessage());
+        }
+        return fechaISO;
+    }
+}
