@@ -16,111 +16,75 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="870.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.Rectoria.InformesController">
+<AnchorPane prefHeight="870.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Rectoria.InformesController">
     <children>
-        <ScrollPane hbarPolicy="NEVER"
-                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <ScrollPane hbarPolicy="NEVER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
                 <VBox spacing="20.0">
                     <padding>
-                        <Insets bottom="25.0" left="40.0" right="40.0" top="25.0"/>
+                        <Insets bottom="25.0" left="40.0" right="40.0" top="25.0" />
                     </padding>
                     <children>
 
                         <!-- Título -->
                         <Label styleClass="titulo-seccion" text="Informes">
-                            <font><Font name="Roboto Medium" size="30.0"/></font>
+                            <font><Font name="Roboto Medium" size="30.0" /></font>
                         </Label>
 
                         <!-- Descripción -->
-                        <Label styleClass="descripcion-seccion" wrapText="true"
-                               text="Genere reportes PDF de faltas disciplinarias con filtros por estudiante, tipo de falta y caso.">
-                            <font><Font name="Roboto Regular" size="16.0"/></font>
+                        <Label styleClass="descripcion-seccion" text="Genere reportes PDF de faltas disciplinarias con filtros por estudiante, tipo de falta y caso." wrapText="true">
+                            <font><Font name="Roboto Regular" size="16.0" /></font>
                         </Label>
 
-                        <Separator prefWidth="1100.0"/>
+                        <Separator prefWidth="1100.0" />
 
                         <!-- ===== PANEL DE FILTROS ===== -->
                         <VBox spacing="15.0">
-                            <padding><Insets bottom="10.0" top="10.0"/></padding>
+                            <padding><Insets bottom="10.0" top="10.0" /></padding>
                             <children>
 
-                                <!-- Fila 1: Tipo de reporte + Estudiante -->
+                                <!-- Fila 1: Tipo de reporte + Estudiante (TextField con autocompletado) -->
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label minWidth="130.0" styleClass="label-filtro" text="Tipo de Reporte:"/>
-                                        <ComboBox fx:id="cbTipoReporte" prefWidth="260.0"
-                                                  styleClass="combo-filtro"
-                                                  promptText="Seleccione tipo de informe"/>
+                                        <Label minWidth="130.0" styleClass="label-filtro" text="Tipo de Reporte:" />
+                                        <ComboBox fx:id="cbTipoReporte" prefWidth="260.0" promptText="Seleccione tipo de informe" styleClass="combo-filtro" />
 
-                                        <Label fx:id="lblEstudiante" minWidth="100.0"
-                                               styleClass="label-filtro" text="Estudiante:"
-                                               managed="false" visible="false"/>
-                                        <ComboBox fx:id="cbEstudiante" prefWidth="280.0"
-                                                  styleClass="combo-filtro"
-                                                  promptText="Seleccione estudiante"
-                                                  managed="false" visible="false"/>
-
-                                        <Label fx:id="lblGrado" minWidth="70.0"
-                                               styleClass="label-filtro" text="Grado:"
-                                               managed="false" visible="false"/>
-                                        <ComboBox fx:id="cbGrado" prefWidth="130.0"
-                                                  styleClass="combo-filtro"
-                                                  promptText="Todos"
-                                                  managed="false" visible="false"/>
+                                        <!-- TextField de búsqueda con sugerencias (reemplaza al ComboBox) -->
+                                        <Label fx:id="lblEstudiante" managed="false" minWidth="100.0" styleClass="label-filtro" text="Estudiante:" visible="false" />
+                                        <TextField fx:id="txtEstudiante" managed="false" prefWidth="300.0" promptText="Escriba el nombre o identificación..." styleClass="text-field-filtro" visible="false" />
                                     </children>
                                 </HBox>
 
                                 <!-- Fila 2: Tipo falta + Caso -->
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label fx:id="lblTipoFalta" minWidth="130.0"
-                                               styleClass="label-filtro" text="Tipo de Falta:"
-                                               managed="false" visible="false"/>
-                                        <ComboBox fx:id="cbTipoFalta" prefWidth="200.0"
-                                                  styleClass="combo-filtro"
-                                                  promptText="Todas"
-                                                  managed="false" visible="false"/>
+                                        <Label fx:id="lblTipoFalta" managed="false" minWidth="130.0" styleClass="label-filtro" text="Tipo de Falta:" visible="false" />
+                                        <ComboBox fx:id="cbTipoFalta" managed="false" prefWidth="200.0" promptText="Todos" styleClass="combo-filtro" visible="false" />
 
-                                        <Label fx:id="lblCaso" minWidth="70.0"
-                                               styleClass="label-filtro" text="Caso:"
-                                               managed="false" visible="false"/>
-                                        <ComboBox fx:id="cbCaso" prefWidth="260.0"
-                                                  styleClass="combo-filtro"
-                                                  promptText="Todos los casos"
-                                                  managed="false" visible="false"/>
+                                        <Label fx:id="lblCaso" managed="false" minWidth="70.0" styleClass="label-filtro" text="Caso:" visible="false" />
+                                        <ComboBox fx:id="cbCaso" managed="false" prefWidth="260.0" promptText="Todos los casos" styleClass="combo-filtro" visible="false" />
                                     </children>
                                 </HBox>
 
                                 <!-- Fila 3: Fechas -->
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label minWidth="70.0" styleClass="label-filtro" text="Desde:"/>
-                                        <DatePicker fx:id="dpFechaInicio" prefWidth="160.0"
-                                                    styleClass="date-picker-filtro"/>
-                                        <Label minWidth="70.0" styleClass="label-filtro" text="Hasta:"/>
-                                        <DatePicker fx:id="dpFechaFin" prefWidth="160.0"
-                                                    styleClass="date-picker-filtro"/>
-                                        <Button fx:id="btnFiltrar" onAction="#clickFiltrar"
-                                                prefWidth="110.0" styleClass="btn-primary" text="Filtrar"/>
-                                        <Button fx:id="btnLimpiarFiltro" onAction="#clickLimpiarFiltro"
-                                                prefWidth="150.0" styleClass="btn-secondary" text="Limpiar Filtros"/>
+                                        <Label minWidth="70.0" styleClass="label-filtro" text="Desde:" />
+                                        <DatePicker fx:id="dpFechaInicio" prefWidth="160.0" styleClass="date-picker-filtro" />
+                                        <Label minWidth="70.0" styleClass="label-filtro" text="Hasta:" />
+                                        <DatePicker fx:id="dpFechaFin" prefWidth="160.0" styleClass="date-picker-filtro" />
+                                        <Button fx:id="btnFiltrar" onAction="#clickFiltrar" prefWidth="110.0" styleClass="btn-primary" text="Filtrar" />
+                                        <Button fx:id="btnLimpiarFiltro" onAction="#clickLimpiarFiltro" prefWidth="150.0" styleClass="btn-secondary" text="Limpiar Filtros" />
                                     </children>
                                 </HBox>
 
                                 <!-- Fila 4: Generar reporte -->
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Button fx:id="btnGenerarReporte" onAction="#clickGenerarReporte"
-                                                prefWidth="210.0" styleClass="btn-success"
-                                                text="Generar Reporte PDF"/>
-                                        <CheckBox fx:id="chkIncluirTablas" selected="true"
-                                                  text="Incluir tabla detallada"/>
-                                        <Label styleClass="descripcion-seccion"
-                                               text="Descargará el reporte PDF con los filtros aplicados.">
-                                            <font><Font name="Roboto Regular" size="12.0"/></font>
+                                        <Button fx:id="btnGenerarReporte" onAction="#clickGenerarReporte" prefWidth="210.0" styleClass="btn-success" text="Generar Reporte PDF" />
+                                        <CheckBox fx:id="chkIncluirTablas" selected="true" text="Incluir tabla detallada" />
+                                        <Label styleClass="descripcion-seccion" text="Descargará el reporte PDF con los filtros aplicados.">
+                                            <font><Font name="Roboto Regular" size="12.0" /></font>
                                         </Label>
                                     </children>
                                 </HBox>
@@ -128,48 +92,66 @@
                             </children>
                         </VBox>
 
-                        <Separator prefWidth="1100.0"/>
+                        <Separator prefWidth="1100.0" />
 
                         <!-- ===== RESUMEN / ESTADÍSTICAS ===== -->
-                        <HBox spacing="30.0" alignment="CENTER_LEFT">
+                        <HBox alignment="CENTER_LEFT" spacing="30.0">
                             <children>
-                                <VBox styleClass="tarjeta-resumen" spacing="4.0">
+                                <VBox spacing="4.0" styleClass="tarjeta-resumen">
                                     <children>
-                                        <Label fx:id="lblTotalFaltas" text="0" styleClass="valor-resumen">
-                                            <font><Font name="Roboto Medium" size="28.0"/></font>
+                                        <Label fx:id="lblTotalFaltas" styleClass="valor-resumen" text="0">
+                                            <font><Font name="Roboto Medium" size="28.0" /></font>
                                         </Label>
-                                        <Label text="Total Faltas" styleClass="descripcion-seccion">
-                                            <font><Font name="Roboto Regular" size="13.0"/></font>
+                                        <Label styleClass="descripcion-seccion" text="Total Faltas">
+                                            <font><Font name="Roboto Regular" size="13.0" /></font>
                                         </Label>
                                     </children>
                                 </VBox>
-                                <VBox styleClass="tarjeta-resumen" spacing="4.0">
+                                <VBox spacing="4.0" styleClass="tarjeta-resumen">
                                     <children>
-                                        <Label fx:id="lblFaltasGraves" text="0" styleClass="valor-resumen">
-                                            <font><Font name="Roboto Medium" size="28.0"/></font>
+                                        <Label fx:id="lblFaltasTipo1" styleClass="valor-resumen" text="0">
+                                            <font>
+                                    <Font name="Roboto Medium" size="28.0" />
+                                 </font>
                                         </Label>
-                                        <Label text="Faltas Graves" styleClass="descripcion-seccion">
-                                            <font><Font name="Roboto Regular" size="13.0"/></font>
+                                        <Label styleClass="descripcion-seccion" text="Tipo 1">
+                                            <font>
+                                    <Font name="Roboto Regular" size="13.0" />
+                                 </font>
                                         </Label>
                                     </children>
                                 </VBox>
-                                <VBox styleClass="tarjeta-resumen" spacing="4.0">
+                                <VBox spacing="4.0" styleClass="tarjeta-resumen">
                                     <children>
-                                        <Label fx:id="lblFaltasLeves" text="0" styleClass="valor-resumen">
-                                            <font><Font name="Roboto Medium" size="28.0"/></font>
+                                        <Label fx:id="lblFaltasTipo2" styleClass="valor-resumen" text="0">
+                                            <font>
+                                    <Font name="Roboto Medium" size="28.0" />
+                                 </font>
                                         </Label>
-                                        <Label text="Faltas Leves" styleClass="descripcion-seccion">
-                                            <font><Font name="Roboto Regular" size="13.0"/></font>
+                                        <Label styleClass="descripcion-seccion" text="Tipo 2">
+                                            <font>
+                                    <Font name="Roboto Regular" size="13.0" />
+                                 </font>
                                         </Label>
                                     </children>
                                 </VBox>
-                                <VBox styleClass="tarjeta-resumen" spacing="4.0">
+                                <VBox spacing="4.0" styleClass="tarjeta-resumen">
                                     <children>
-                                        <Label fx:id="lblEstudiantesAfectados" text="0" styleClass="valor-resumen">
-                                            <font><Font name="Roboto Medium" size="28.0"/></font>
+                                        <Label fx:id="lblFaltasTipo3" styleClass="valor-resumen" text="0">
+                                            <font><Font name="Roboto Medium" size="28.0" /></font>
                                         </Label>
-                                        <Label text="Estudiantes" styleClass="descripcion-seccion">
-                                            <font><Font name="Roboto Regular" size="13.0"/></font>
+                                        <Label styleClass="descripcion-seccion" text="Tipo 3">
+                                            <font><Font name="Roboto Regular" size="13.0" /></font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <VBox spacing="4.0" styleClass="tarjeta-resumen">
+                                    <children>
+                                        <Label fx:id="lblEstudiantesAfectados" styleClass="valor-resumen" text="0">
+                                            <font><Font name="Roboto Medium" size="28.0" /></font>
+                                        </Label>
+                                        <Label styleClass="descripcion-seccion" text="Estudiantes">
+                                            <font><Font name="Roboto Regular" size="13.0" /></font>
                                         </Label>
                                     </children>
                                 </VBox>
@@ -177,25 +159,24 @@
                         </HBox>
 
                         <!-- ===== TABLA DE FALTAS ===== -->
-                        <Label fx:id="lblDatosTabla" styleClass="subtitulo-seccion"
-                               text="Datos de Faltas">
-                            <font><Font name="Roboto Medium" size="16.0"/></font>
+                        <Label fx:id="lblDatosTabla" styleClass="subtitulo-seccion" text="Datos de Faltas">
+                            <font><Font name="Roboto Medium" size="16.0" /></font>
                         </Label>
 
                         <TableView fx:id="tblFaltas" prefHeight="400.0" styleClass="tabla-datos">
                             <columns>
-                                <TableColumn fx:id="colFecha"         prefWidth="110.0" text="Fecha"/>
-                                <TableColumn fx:id="colEstudiante"    prefWidth="180.0" text="Estudiante"/>
-                                <TableColumn fx:id="colGrado"         prefWidth="70.0"  text="Grado"/>
-                                <TableColumn fx:id="colTipoFalta"     prefWidth="110.0" text="Tipo Falta"/>
-                                <TableColumn fx:id="colCaso"          prefWidth="160.0" text="Caso"/>
-                                <TableColumn fx:id="colLugar"         prefWidth="130.0" text="Lugar"/>
-                                <TableColumn fx:id="colDocente"       prefWidth="160.0" text="Docente"/>
-                                <TableColumn fx:id="colDescargo"      prefWidth="180.0" text="Descargo"/>
-                                <TableColumn fx:id="colAccion"        prefWidth="180.0" text="Acción Restaurativa"/>
+                                <TableColumn fx:id="colFecha" prefWidth="110.0" text="Fecha" />
+                                <TableColumn fx:id="colEstudiante" prefWidth="180.0" text="Estudiante" />
+                                <TableColumn fx:id="colGrado" prefWidth="70.0" text="Grado" />
+                                <TableColumn fx:id="colTipoFalta" prefWidth="110.0" text="Tipo Falta" />
+                                <TableColumn fx:id="colCaso" prefWidth="160.0" text="Caso" />
+                                <TableColumn fx:id="colLugar" prefWidth="130.0" text="Lugar" />
+                                <TableColumn fx:id="colDocente" prefWidth="160.0" text="Docente" />
+                                <TableColumn fx:id="colDescargo" prefWidth="180.0" text="Descargo" />
+                                <TableColumn fx:id="colAccion" prefWidth="180.0" text="Acción Restaurativa" />
                             </columns>
                             <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                             </columnResizePolicy>
                         </TableView>
 

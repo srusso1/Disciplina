@@ -1,0 +1,1 @@
+.\scripts\packaging\build-win.ps1 -RuntimePath "C:\Program Files\Eclipse Adoptium\jdk-21.0.7.6-hotspot"

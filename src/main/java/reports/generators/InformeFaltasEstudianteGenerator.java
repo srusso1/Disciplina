@@ -16,17 +16,23 @@ import java.util.stream.Collectors;
  *
  * Estructura del PDF:
  *  1. Encabezado institucional estándar
- *  2. Bloque de parámetros del informe (filtros aplicados)
- *  3. Resumen estadístico (total, graves, leves, estudiantes)
- *  4. [Opcional] Tabla detallada de faltas
- *  5. Pie de página con fecha de generación
+ *  2. Datos del estudiante (si se seleccionó uno)
+ *  3. Bloque de parámetros del informe (filtros aplicados)
+ *  4. Resumen estadístico (total por Tipo 1 / Tipo 2 / Tipo 3)
+ *  5. [Opcional] Tabla detallada de faltas
+ *  6. Distribución por caso (cuando es informe individual)
+ *  7. Pie de página con fecha de generación
+ *
+ * NOTA: getTipoFalta() en FaltaConsultaRow devuelve "Tipo 1", "Tipo 2" o "Tipo 3"
+ *       (el DAO ya prefija "Tipo " al construir la fila). Las comparaciones deben
+ *       usar ese formato exacto.
  */
 public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
 
     private final List<FaltaConsultaRow> faltas;
     private final Estudiante             estudianteSeleccionado;
     private final String                 nombreCasoFiltro;
-    private final Integer                tipoFaltaFiltro;
+    private final Integer                tipoFaltaFiltro;   // número 1, 2 ó 3 (o null = todos)
 
     // ──────────────────────────────────────────────────────────────────────────
     //  CONSTRUCTOR
@@ -39,10 +45,10 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
                                             String nombreCasoFiltro,
                                             Integer tipoFaltaFiltro) {
         super(config, nombreArchivoSugerido);
-        this.faltas                  = faltas;
-        this.estudianteSeleccionado  = estudianteSeleccionado;
-        this.nombreCasoFiltro        = nombreCasoFiltro;
-        this.tipoFaltaFiltro         = tipoFaltaFiltro;
+        this.faltas                 = faltas;
+        this.estudianteSeleccionado = estudianteSeleccionado;
+        this.nombreCasoFiltro       = nombreCasoFiltro;
+        this.tipoFaltaFiltro        = tipoFaltaFiltro;
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -55,6 +61,11 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
 
         agregarEncabezadoEstandar("INFORME DE FALTAS DISCIPLINARIAS");
 
+        if (estudianteSeleccionado != null) {
+            agregarDatosEstudiante();
+            agregarEspacio();
+        }
+
         agregarBloqueParametros();
         agregarEspacio();
         agregarResumenEstadistico();
@@ -65,7 +76,6 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
             agregarEspacio();
         }
 
-        // Si hay un estudiante individual, agregar resumen agrupado por caso
         if (estudianteSeleccionado != null && !faltas.isEmpty()) {
             agregarResumenPorCaso();
         }
@@ -77,17 +87,24 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
     //  SECCIONES DEL PDF
     // ──────────────────────────────────────────────────────────────────────────
 
-    /** Bloque con los filtros que se aplicaron al generar el informe. */
+    /** Bloque con datos personales del estudiante seleccionado. */
+    private void agregarDatosEstudiante() {
+        pdfBuilder.agregarSeccion("Datos del Estudiante");
+        pdfBuilder.agregarLineaDetalle("Nombre",         nombreCompleto(estudianteSeleccionado));
+        pdfBuilder.agregarLineaDetalle("Identificación", String.valueOf(estudianteSeleccionado.getIdentificacion()));
+        pdfBuilder.agregarLineaDetalle("Grado",          estudianteSeleccionado.getGrado() + "°");
+        pdfBuilder.agregarLineaDetalle("Género",         safeStr(estudianteSeleccionado.getGenero()));
+    }
+
+    /** Bloque con los filtros aplicados al generar el informe. */
     private void agregarBloqueParametros() {
         pdfBuilder.agregarSeccion("Parámetros del Informe");
 
-        // Estudiante
         String nombreEstudiante = estudianteSeleccionado != null
                 ? nombreCompleto(estudianteSeleccionado)
                 : "Todos los estudiantes";
         pdfBuilder.agregarLineaDetalle("Estudiante", nombreEstudiante);
 
-        // Período
         String desde = config.getFechaInicio() != null
                 ? config.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 : "Sin límite";
@@ -96,34 +113,32 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
                 : "Sin límite";
         pdfBuilder.agregarLineaDetalle("Período", desde + "  →  " + hasta);
 
-        // Tipo de falta
-        String tipoFaltaTexto = tipoFaltaFiltro != null
-                ? resolverTipoFalta(tipoFaltaFiltro)
-                : "Todos los tipos";
+        // Tipo de falta: "Tipo N" o "Todos los tipos"
+        String tipoFaltaTexto = tipoFaltaFiltro != null ? "Tipo " + tipoFaltaFiltro : "Todos los tipos";
         pdfBuilder.agregarLineaDetalle("Tipo de Falta", tipoFaltaTexto);
 
-        // Caso
         String casoTexto = nombreCasoFiltro != null ? nombreCasoFiltro : "Todos los casos";
         pdfBuilder.agregarLineaDetalle("Caso", casoTexto);
 
-        pdfBuilder.agregarLineaDetalle("Total de registros", String.valueOf(faltas.size()));
     }
 
-    /** Bloque con contadores globales. */
+    /**
+     * Resumen estadístico.
+     * IMPORTANTE: getTipoFalta() devuelve "Tipo 1", "Tipo 2", "Tipo 3" — comparar con ese formato.
+     */
     private void agregarResumenEstadistico() {
         pdfBuilder.agregarSeccion("Resumen Estadístico");
 
-        long graves    = faltas.stream().filter(f -> esGrave(f.getTipoFalta())).count();
-        long leves     = faltas.stream().filter(f -> "1".equals(f.getTipoFalta())).count();
-        long gravisimas = faltas.stream().filter(f -> "3".equals(f.getTipoFalta())).count();
+        long tipo1 = faltas.stream().filter(f -> "Tipo 1".equals(f.getTipoFalta())).count();
+        long tipo2 = faltas.stream().filter(f -> "Tipo 2".equals(f.getTipoFalta())).count();
+        long tipo3 = faltas.stream().filter(f -> "Tipo 3".equals(f.getTipoFalta())).count();
         long estudiantesUnicos = faltas.stream()
                 .map(FaltaConsultaRow::getIdEstudiante).distinct().count();
 
         pdfBuilder.agregarLineaDetalle("Total de faltas registradas", String.valueOf(faltas.size()));
-        pdfBuilder.agregarLineaDetalle("Faltas leves (Tipo 1)",       String.valueOf(leves));
-        pdfBuilder.agregarLineaDetalle("Faltas graves (Tipo 2)",      String.valueOf(graves));
-        pdfBuilder.agregarLineaDetalle("Faltas gravísimas (Tipo 3)",  String.valueOf(gravisimas));
-        pdfBuilder.agregarLineaDetalle("Estudiantes con faltas",      String.valueOf(estudiantesUnicos));
+        pdfBuilder.agregarLineaDetalle("Faltas Tipo 1", String.valueOf(tipo1));
+        pdfBuilder.agregarLineaDetalle("Faltas Tipo 2", String.valueOf(tipo2));
+        pdfBuilder.agregarLineaDetalle("Faltas Tipo 3", String.valueOf(tipo3));
 
         // Caso más frecuente
         faltas.stream()
@@ -136,31 +151,33 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
                 );
     }
 
-    /** Tabla fila a fila con todos los registros. */
+    /** Tabla detallada con todos los registros del período. */
     private void agregarTablaDetallada() {
         pdfBuilder.agregarSeccion("Detalle de Faltas");
 
-        float[] anchos = {3f, 4f, 1.5f, 2f, 3.5f, 2.5f, 3f};
-        String[] encabezados = {"Fecha", "Estudiante", "Grado", "Tipo", "Caso", "Lugar", "Docente"};
-
+        float[] anchos      = {2.5f, 4f, 1.5f, 2f, 3.5f, 2.5f, 3f, 3f, 3f};
+        String[] encabezados = {"Fecha", "Estudiante", "Grado", "Tipo", "Caso",
+                "Lugar", "Docente", "Descargo", "Acción Restaurativa"};
         Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
 
         for (FaltaConsultaRow falta : faltas) {
             pdfBuilder.agregarFilaTabla(tabla, new String[]{
                     falta.getFecha(),
                     falta.getEstudiante(),
-                    String.valueOf(falta.getGrado()),
-                    resolverTipoFalta(falta.getTipoFalta()),
+                    falta.getGrado() + "°",
+                    falta.getTipoFalta(),           // ya viene como "Tipo 1", "Tipo 2", "Tipo 3"
                     falta.getCaso(),
                     falta.getLugar(),
-                    falta.getDocente()
+                    falta.getDocente(),
+                    safeStr(falta.getDescargo()),
+                    safeStr(falta.getAccionRestaurativa())
             });
         }
 
         pdfBuilder.agregarTabla(tabla);
     }
 
-    /** Agrupación de faltas por tipo de caso (para informes individuales). */
+    /** Distribución de faltas por caso (para informes individuales). */
     private void agregarResumenPorCaso() {
         pdfBuilder.agregarSeccion("Distribución por Caso — " + nombreCompleto(estudianteSeleccionado));
 
@@ -169,7 +186,7 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
                         LinkedHashMap::new,
                         Collectors.counting()));
 
-        float[] anchos = {6f, 2f};
+        float[] anchos      = {6f, 2f};
         String[] encabezados = {"Caso", "Cantidad"};
         Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
 
@@ -187,45 +204,15 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
     //  UTILIDADES
     // ──────────────────────────────────────────────────────────────────────────
 
-    private void agregarEspacio() {
-        pdfBuilder.agregarEspacio(10);
-    }
+    private void agregarEspacio() { pdfBuilder.agregarEspacio(10); }
 
     private String nombreCompleto(Estudiante e) {
         if (e == null) return "";
-        return (e.getNombre1()   + " " +
-                safeStr(e.getNombre2())   + " " +
-                e.getApellido1() + " " +
+        return (e.getNombre1()           + " " +
+                safeStr(e.getNombre2())  + " " +
+                e.getApellido1()         + " " +
                 safeStr(e.getApellido2())).replaceAll("\\s+", " ").trim();
     }
 
-    private String safeStr(String s) {
-        return s != null ? s : "";
-    }
-
-    private boolean esGrave(String tipo) {
-        return "2".equals(tipo);
-    }
-
-    /** Convierte el String tipo_falta (viene de la DB) a texto legible. */
-    private String resolverTipoFalta(String tipo) {
-        if (tipo == null) return "";
-        switch (tipo.trim()) {
-            case "1": return "Leve";
-            case "2": return "Grave";
-            case "3": return "Gravísima";
-            default:  return tipo;
-        }
-    }
-
-    /** Convierte el Integer tipo_falta al mismo texto. */
-    private String resolverTipoFalta(Integer tipo) {
-        if (tipo == null) return "Todos";
-        switch (tipo) {
-            case 1: return "Leve (Tipo 1)";
-            case 2: return "Grave (Tipo 2)";
-            case 3: return "Gravísima (Tipo 3)";
-            default: return String.valueOf(tipo);
-        }
-    }
+    private String safeStr(String s) { return s != null ? s : ""; }
 }

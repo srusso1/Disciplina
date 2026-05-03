@@ -52,7 +52,7 @@
                                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                                     <children>
                                         <Label styleClass="form-label" text="Estudiante" />
-                                        <TextField fx:id="txtEstudiante" promptText="Escribe el nombre del estudiante" styleClass="form-control">
+                                        <TextField fx:id="txtEstudiante" promptText="Estudiante" styleClass="form-control">
                                             <contextMenu>
                                                 <ContextMenu />
                                             </contextMenu>
@@ -140,6 +140,3 @@
         </VBox>
     </children>
 </AnchorPane>
-
-
-

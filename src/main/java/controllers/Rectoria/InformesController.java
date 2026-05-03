@@ -14,49 +14,52 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import models.Estudiante;
 import reports.generators.InformeFaltasEstudianteGenerator;
+import reports.generators.InformeFaltasGeneralGenerator;
 import reports.models.ReportConfig;
 import utils.Alertas;
+import utils.BusquedaSugerencias;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class InformesController implements Initializable {
 
     // ───── Tipo de reporte ─────
     @FXML private ComboBox<String> cbTipoReporte;
 
+    // ───── Filtro estudiante (TextField + autocompletado) ─────
+    @FXML private Label     lblEstudiante;
+    @FXML private TextField txtEstudiante;
+
     // ───── Filtros dinámicos ─────
-    @FXML private Label       lblEstudiante;
-    @FXML private ComboBox<Estudiante> cbEstudiante;
-    @FXML private Label       lblGrado;
-    @FXML private ComboBox<String>     cbGrado;
-    @FXML private Label       lblTipoFalta;
-    @FXML private ComboBox<String>     cbTipoFalta;
-    @FXML private Label       lblCaso;
-    @FXML private ComboBox<Caso>       cbCaso;
+    @FXML private Label            lblTipoFalta;
+    @FXML private ComboBox<String> cbTipoFalta;
+    @FXML private Label            lblCaso;
+    @FXML private ComboBox<Caso>   cbCaso;
 
     // ───── Fechas ─────
     @FXML private DatePicker dpFechaInicio;
     @FXML private DatePicker dpFechaFin;
 
     // ───── Acciones ─────
-    @FXML private Button  btnFiltrar;
-    @FXML private Button  btnLimpiarFiltro;
-    @FXML private Button  btnGenerarReporte;
+    @FXML private Button   btnFiltrar;
+    @FXML private Button   btnLimpiarFiltro;
+    @FXML private Button   btnGenerarReporte;
     @FXML private CheckBox chkIncluirTablas;
 
-    // ───── Resumen ─────
+    // ───── Tarjetas resumen ─────
     @FXML private Label lblTotalFaltas;
-    @FXML private Label lblFaltasGraves;
-    @FXML private Label lblFaltasLeves;
+    @FXML private Label lblFaltasTipo1;
+    @FXML private Label lblFaltasTipo2;
+    @FXML private Label lblFaltasTipo3;
     @FXML private Label lblEstudiantesAfectados;
     @FXML private Label lblDatosTabla;
 
     // ───── Tabla ─────
-    @FXML private TableView<FaltaConsultaRow> tblFaltas;
+    @FXML private TableView<FaltaConsultaRow>           tblFaltas;
     @FXML private TableColumn<FaltaConsultaRow, String> colFecha;
     @FXML private TableColumn<FaltaConsultaRow, String> colEstudiante;
     @FXML private TableColumn<FaltaConsultaRow, String> colGrado;
@@ -68,15 +71,20 @@ public class InformesController implements Initializable {
     @FXML private TableColumn<FaltaConsultaRow, String> colAccion;
 
     // ───── DAOs ─────
-    private final FaltaDAO     faltaDAO     = new FaltaDAO();
+    private final FaltaDAO      faltaDAO      = new FaltaDAO();
     private final EstudianteDAO estudianteDAO = new EstudianteDAO();
-    private final CasoDAO      casoDAO      = new CasoDAO();
+    private final CasoDAO       casoDAO       = new CasoDAO();
 
-    // ───── Tipos de reporte disponibles ─────
+    // ───── Tipos de reporte ─────
+    private static final String TIPO_GENERAL           = "Informe General";
     private static final String TIPO_FALTAS_ESTUDIANTE = "Faltas por Estudiante";
-    // (aquí se añaden los futuros tipos)
 
-    // ───── Estado ─────
+    // ───── Estado autocompletado estudiante ─────
+    private final List<Estudiante> cacheEstudiantes          = new ArrayList<>();
+    private final ContextMenu      menuSugerenciasEstudiante = new ContextMenu();
+    private       Estudiante       estudianteSeleccionado    = null;
+
+    // ───── Datos tabla ─────
     private ObservableList<FaltaConsultaRow> datosCargados = FXCollections.observableArrayList();
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -89,52 +97,39 @@ public class InformesController implements Initializable {
         cargarTiposDeReporte();
         cargarEstudiantes();
         cargarCasos();
-        cargarGrados();
         cargarTiposFalta();
+        configurarAutocompletadoEstudiante();
 
-        // Cuando cambie el tipo de reporte → mostrar/ocultar filtros
         cbTipoReporte.valueProperty().addListener((obs, oldVal, newVal) -> actualizarFiltrosVisibles(newVal));
 
-        // Cargar datos iniciales (sin filtros)
         cargarDatos(null, null, null, null, null);
     }
 
     private void configurarColumnas() {
-        colFecha.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFecha()));
+        colFecha.setCellValueFactory(c      -> new SimpleStringProperty(c.getValue().getFecha()));
         colEstudiante.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEstudiante()));
-        colGrado.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getGrado())));
-        colTipoFalta.setCellValueFactory(c -> new SimpleStringProperty(resolverTipoFalta(c.getValue().getTipoFalta())));
-        colCaso.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getCaso()));
-        colLugar.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getLugar()));
-        colDocente.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDocente()));
-        colDescargo.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDescargo()));
-        colAccion.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getAccionRestaurativa()));
+        colGrado.setCellValueFactory(c      -> new SimpleStringProperty(c.getValue().getGrado() + "°"));
+        // getTipoFalta() ya devuelve "Tipo 1" / "Tipo 2" / "Tipo 3" — no agregar prefijo
+        colTipoFalta.setCellValueFactory(c  -> new SimpleStringProperty(c.getValue().getTipoFalta()));
+        colCaso.setCellValueFactory(c       -> new SimpleStringProperty(c.getValue().getCaso()));
+        colLugar.setCellValueFactory(c      -> new SimpleStringProperty(c.getValue().getLugar()));
+        colDocente.setCellValueFactory(c    -> new SimpleStringProperty(c.getValue().getDocente()));
+        colDescargo.setCellValueFactory(c   -> new SimpleStringProperty(safeStr(c.getValue().getDescargo())));
+        colAccion.setCellValueFactory(c     -> new SimpleStringProperty(safeStr(c.getValue().getAccionRestaurativa())));
 
         tblFaltas.setItems(datosCargados);
     }
 
     private void cargarTiposDeReporte() {
         cbTipoReporte.getItems().clear();
-        cbTipoReporte.getItems().add(TIPO_FALTAS_ESTUDIANTE);
-        cbTipoReporte.setValue(TIPO_FALTAS_ESTUDIANTE);
+        cbTipoReporte.getItems().addAll(TIPO_GENERAL, TIPO_FALTAS_ESTUDIANTE);
+        cbTipoReporte.setValue(TIPO_GENERAL);
     }
 
     private void cargarEstudiantes() {
-        List<Estudiante> estudiantes = estudianteDAO.obtenerTodos();
-        cbEstudiante.getItems().clear();
-        cbEstudiante.getItems().addAll(estudiantes);
-
-        // Mostrar nombre completo en el combo
-        cbEstudiante.setConverter(new javafx.util.StringConverter<Estudiante>() {
-            @Override public String toString(Estudiante e) {
-                if (e == null) return "";
-                return (e.getNombre1() + " " +
-                        (e.getNombre2() != null ? e.getNombre2() + " " : "") +
-                        e.getApellido1() + " " +
-                        (e.getApellido2() != null ? e.getApellido2() : "")).trim();
-            }
-            @Override public Estudiante fromString(String s) { return null; }
-        });
+        cacheEstudiantes.clear();
+        cacheEstudiantes.addAll(estudianteDAO.obtenerTodos());
+        txtEstudiante.setContextMenu(menuSugerenciasEstudiante);
     }
 
     private void cargarCasos() {
@@ -143,16 +138,67 @@ public class InformesController implements Initializable {
         cbCaso.getItems().addAll(casos);
     }
 
-    private void cargarGrados() {
-        cbGrado.getItems().clear();
-        cbGrado.getItems().addAll(
-                "6°", "7°", "8°", "9°", "10°", "11°"
+    private void cargarTiposFalta() {
+        cbTipoFalta.getItems().clear();
+        // Deben coincidir exactamente con FaltaConsultaRow.getTipoFalta()
+        cbTipoFalta.getItems().addAll("Tipo 1", "Tipo 2", "Tipo 3");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  AUTOCOMPLETADO ESTUDIANTE
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private void configurarAutocompletadoEstudiante() {
+        BusquedaSugerencias.configurar(
+                txtEstudiante,
+                menuSugerenciasEstudiante,
+                cacheEstudiantes,
+                2,
+                8,
+                this::textoBusquedaEstudiante,
+                this::textoMenuEstudiante,
+                this::textoSeleccionEstudiante,
+                this::seleccionarEstudiante,
+                this::limpiarSeleccionEstudiante
+        );
+
+        // Si el usuario edita manualmente el texto, limpiar selección
+        txtEstudiante.textProperty().addListener((obs, oldText, newText) -> {
+            if (estudianteSeleccionado == null) return;
+            String actual = newText == null ? "" : newText.trim();
+            if (!actual.equalsIgnoreCase(textoSeleccionEstudiante(estudianteSeleccionado))) {
+                limpiarSeleccionEstudiante();
+            }
+        });
+    }
+
+    private String textoBusquedaEstudiante(Estudiante e) {
+        return textoSeleccionEstudiante(e) + " " + e.getIdentificacion();
+    }
+
+    private String textoMenuEstudiante(Estudiante e) {
+        return textoSeleccionEstudiante(e)
+                + " | ID: " + e.getIdentificacion()
+                + " | Grado: " + e.getGrado() + "°";
+    }
+
+    private String textoSeleccionEstudiante(Estudiante e) {
+        return unirPartes(e.getNombre1(), e.getNombre2(), e.getApellido1(), e.getApellido2());
+    }
+
+    private void seleccionarEstudiante(Estudiante e) {
+        estudianteSeleccionado = e;
+        cargarDatos(
+                e.getId(),
+                dpFechaInicio.getValue() != null ? dpFechaInicio.getValue().toString() : null,
+                dpFechaFin.getValue()    != null ? dpFechaFin.getValue().toString()    : null,
+                tipoFaltaSeleccionado(),
+                idCasoSeleccionado()
         );
     }
 
-    private void cargarTiposFalta() {
-        cbTipoFalta.getItems().clear();
-        cbTipoFalta.getItems().addAll("Leve (Tipo 1)", "Grave (Tipo 2)", "Gravísima (Tipo 3)");
+    private void limpiarSeleccionEstudiante() {
+        estudianteSeleccionado = null;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -160,17 +206,15 @@ public class InformesController implements Initializable {
     // ─────────────────────────────────────────────────────────────────────────
 
     private void actualizarFiltrosVisibles(String tipo) {
-        boolean esFaltasEstudiante = TIPO_FALTAS_ESTUDIANTE.equals(tipo);
+        boolean esEstudiante = TIPO_FALTAS_ESTUDIANTE.equals(tipo);
 
-        setVisible(lblEstudiante,  cbEstudiante,  esFaltasEstudiante);
-        setVisible(lblGrado,       cbGrado,        esFaltasEstudiante);
-        setVisible(lblTipoFalta,   cbTipoFalta,    esFaltasEstudiante);
-        setVisible(lblCaso,        cbCaso,         esFaltasEstudiante);
+        setVisible(lblEstudiante, txtEstudiante, esEstudiante);
+        setVisible(lblTipoFalta,  cbTipoFalta,   esEstudiante);
+        setVisible(lblCaso,       cbCaso,         esEstudiante);
 
-        // Actualizar el subtítulo de la tabla
-        if (esFaltasEstudiante) {
-            lblDatosTabla.setText("Faltas por Estudiante");
-        }
+        lblDatosTabla.setText(TIPO_GENERAL.equals(tipo)
+                ? "Vista previa — Informe General"
+                : "Faltas por Estudiante");
 
         cargarDatos(null, null, null, null, null);
     }
@@ -191,26 +235,23 @@ public class InformesController implements Initializable {
         List<FaltaConsultaRow> filas = faltaDAO.consultarFaltas(
                 idEstudiante, fechaDesde, fechaHasta, tipoFalta, idCaso, null
         );
-
         datosCargados.setAll(filas);
         actualizarResumen(filas);
     }
 
     private void actualizarResumen(List<FaltaConsultaRow> filas) {
-        int total  = filas.size();
-        int graves = (int) filas.stream()
-                .filter(f -> "2".equals(f.getTipoFalta()) || "3".equals(f.getTipoFalta()))
-                .count();
-        int leves  = (int) filas.stream()
-                .filter(f -> "1".equals(f.getTipoFalta()))
-                .count();
+        int total = filas.size();
+        // getTipoFalta() devuelve "Tipo 1", "Tipo 2", "Tipo 3"
+        long tipo1 = filas.stream().filter(f -> "Tipo 1".equals(f.getTipoFalta())).count();
+        long tipo2 = filas.stream().filter(f -> "Tipo 2".equals(f.getTipoFalta())).count();
+        long tipo3 = filas.stream().filter(f -> "Tipo 3".equals(f.getTipoFalta())).count();
         long estudiantesUnicos = filas.stream()
-                .map(FaltaConsultaRow::getIdEstudiante)
-                .distinct().count();
+                .map(FaltaConsultaRow::getIdEstudiante).distinct().count();
 
         lblTotalFaltas.setText(String.valueOf(total));
-        lblFaltasGraves.setText(String.valueOf(graves));
-        lblFaltasLeves.setText(String.valueOf(leves));
+        lblFaltasTipo1.setText(String.valueOf(tipo1));
+        lblFaltasTipo2.setText(String.valueOf(tipo2));
+        lblFaltasTipo3.setText(String.valueOf(tipo3));
         lblEstudiantesAfectados.setText(String.valueOf(estudiantesUnicos));
     }
 
@@ -220,37 +261,16 @@ public class InformesController implements Initializable {
 
     @FXML
     void clickFiltrar(ActionEvent event) {
-        Integer idEstudiante = null;
-        if (cbEstudiante.isVisible() && cbEstudiante.getValue() != null) {
-            idEstudiante = cbEstudiante.getValue().getId();
-        }
-
-        String fechaDesde = dpFechaInicio.getValue() != null
-                ? dpFechaInicio.getValue().toString() : null;
-        String fechaHasta = dpFechaFin.getValue() != null
-                ? dpFechaFin.getValue().toString() : null;
-
-        Integer tipoFalta = null;
-        if (cbTipoFalta.isVisible() && cbTipoFalta.getValue() != null) {
-            // "Leve (Tipo 1)" → extraer el número
-            String sel = cbTipoFalta.getValue();
-            if (sel.contains("1")) tipoFalta = 1;
-            else if (sel.contains("2")) tipoFalta = 2;
-            else if (sel.contains("3")) tipoFalta = 3;
-        }
-
-        Integer idCaso = null;
-        if (cbCaso.isVisible() && cbCaso.getValue() != null) {
-            idCaso = cbCaso.getValue().getId();
-        }
-
-        cargarDatos(idEstudiante, fechaDesde, fechaHasta, tipoFalta, idCaso);
+        Integer idEstudiante = estudianteSeleccionado != null ? estudianteSeleccionado.getId() : null;
+        String fechaDesde    = dpFechaInicio.getValue() != null ? dpFechaInicio.getValue().toString() : null;
+        String fechaHasta    = dpFechaFin.getValue()    != null ? dpFechaFin.getValue().toString()    : null;
+        cargarDatos(idEstudiante, fechaDesde, fechaHasta, tipoFaltaSeleccionado(), idCasoSeleccionado());
     }
 
     @FXML
     void clickLimpiarFiltro(ActionEvent event) {
-        cbEstudiante.setValue(null);
-        cbGrado.setValue(null);
+        txtEstudiante.clear();
+        limpiarSeleccionEstudiante();
         cbTipoFalta.setValue(null);
         cbCaso.setValue(null);
         dpFechaInicio.setValue(null);
@@ -265,12 +285,13 @@ public class InformesController implements Initializable {
             Alertas.mostrarError("Seleccione un tipo de reporte.");
             return;
         }
-        if (datosCargados.isEmpty()) {
+        if (!TIPO_GENERAL.equals(tipo) && datosCargados.isEmpty()) {
             Alertas.mostrarError("No hay datos para generar el reporte. Aplique filtros primero.");
             return;
         }
-
-        if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
+        if (TIPO_GENERAL.equals(tipo)) {
+            generarInformeGeneral();
+        } else if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
             generarInformeFaltasEstudiante();
         }
     }
@@ -279,63 +300,82 @@ public class InformesController implements Initializable {
     //  GENERACIÓN DE REPORTES
     // ─────────────────────────────────────────────────────────────────────────
 
+    private void generarInformeGeneral() {
+        ReportConfig config = new ReportConfig();
+        config.setFechaInicio(dpFechaInicio.getValue());
+        config.setFechaFin(dpFechaFin.getValue());
+        config.setIncluirTablas(chkIncluirTablas.isSelected());
+        new InformeFaltasGeneralGenerator(config, "Informe_General_Faltas_" + LocalDate.now() + ".pdf").generar();
+    }
+
     private void generarInformeFaltasEstudiante() {
         ReportConfig config = new ReportConfig();
         config.setFechaInicio(dpFechaInicio.getValue());
         config.setFechaFin(dpFechaFin.getValue());
         config.setIncluirTablas(chkIncluirTablas.isSelected());
+        if (estudianteSeleccionado != null) config.setIdEstudiante(estudianteSeleccionado.getId());
 
-        // Filtros opcionales para el encabezado del PDF
-        Estudiante estudianteSeleccionado = cbEstudiante.getValue();
-        if (estudianteSeleccionado != null) {
-            config.setIdEstudiante(estudianteSeleccionado.getId());
-        }
+        Caso casoSel    = cbCaso.getValue();
+        String nombreCaso = casoSel != null ? casoSel.getNombreCaso() : null;
 
-        Caso casoSeleccionado = cbCaso.getValue();
-        String nombreCaso = casoSeleccionado != null ? casoSeleccionado.getNombreCaso() : null;
-
-        Integer tipoFaltaNum = null;
-        if (cbTipoFalta.getValue() != null) {
-            String sel = cbTipoFalta.getValue();
-            if (sel.contains("1")) tipoFaltaNum = 1;
-            else if (sel.contains("2")) tipoFaltaNum = 2;
-            else if (sel.contains("3")) tipoFaltaNum = 3;
-        }
-
-        String nombreArchivo = construirNombreArchivo(estudianteSeleccionado);
-
-        InformeFaltasEstudianteGenerator gen = new InformeFaltasEstudianteGenerator(
+        new InformeFaltasEstudianteGenerator(
                 config,
-                nombreArchivo,
-                new java.util.ArrayList<>(datosCargados),
+                construirNombreArchivoEstudiante(estudianteSeleccionado),
+                new ArrayList<>(datosCargados),
                 estudianteSeleccionado,
                 nombreCaso,
-                tipoFaltaNum
-        );
-        gen.generar();
+                tipoFaltaSeleccionado()
+        ).generar();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     //  UTILIDADES
     // ─────────────────────────────────────────────────────────────────────────
 
-    private String construirNombreArchivo(Estudiante estudiante) {
-        String base = "Informe_Faltas";
-        if (estudiante != null) {
-            base += "_" + estudiante.getApellido1().replaceAll("\\s+", "_");
-        }
-        base += "_" + LocalDate.now().toString();
-        return base + ".pdf";
+    /** Informe_Faltas_Estudiante_NOMBRE1_APELLIDO1_FECHA.pdf */
+    private String construirNombreArchivoEstudiante(Estudiante e) {
+        if (e == null) return "Informe_Faltas_Estudiante_" + LocalDate.now() + ".pdf";
+        return "Informe_Faltas_Estudiante_"
+                + sanitizar(e.getNombre1()) + "_"
+                + sanitizar(e.getApellido1()) + "_"
+                + LocalDate.now() + ".pdf";
     }
 
-    /** Convierte el entero tipo_falta a texto legible. */
-    private String resolverTipoFalta(String tipo) {
-        if (tipo == null) return "";
-        switch (tipo.trim()) {
-            case "1": return "Leve";
-            case "2": return "Grave";
-            case "3": return "Gravísima";
-            default:  return tipo;
+    private String sanitizar(String valor) {
+        if (valor == null || valor.trim().isEmpty()) return "SIN_DATO";
+        return valor.trim().toUpperCase()
+                .replaceAll("[áÁ]", "A").replaceAll("[éÉ]", "E")
+                .replaceAll("[íÍ]", "I").replaceAll("[óÓ]", "O")
+                .replaceAll("[úÚüÜ]", "U").replaceAll("[ñÑ]", "N")
+                .replaceAll("[^A-Z0-9]", "_").replaceAll("_+", "_")
+                .replaceAll("^_|_$", "");
+    }
+
+    private Integer tipoFaltaSeleccionado() {
+        if (!cbTipoFalta.isVisible() || cbTipoFalta.getValue() == null) return null;
+        try {
+            return Integer.parseInt(cbTipoFalta.getValue().replace("Tipo ", "").trim());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
+
+    private Integer idCasoSeleccionado() {
+        if (!cbCaso.isVisible() || cbCaso.getValue() == null) return null;
+        return cbCaso.getValue().getId();
+    }
+
+    private String unirPartes(String... partes) {
+        StringBuilder sb = new StringBuilder();
+        for (String p : partes) {
+            if (p == null) continue;
+            String v = p.trim();
+            if (v.isEmpty()) continue;
+            if (sb.length() > 0) sb.append(' ');
+            sb.append(v);
+        }
+        return sb.toString();
+    }
+
+    private String safeStr(String s) { return s != null ? s : ""; }
 }

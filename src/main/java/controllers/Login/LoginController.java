@@ -61,7 +61,7 @@ public class LoginController {
             return;
         }
 
-        Alertas.mostrarExito("Bienvenido " + usuario.getRol() + " " + usuario.getUsername());
+        Alertas.mostrarExito("Bienvenido " + usuario.getRol());
 
         if (usuario.getRol().equals("RECTOR")) {
             ManagerView.cargarVista(contenedor, Paths.DASHBOARD_RECTOR);

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <outfile>DISCIPLINA_ROOT/dist/app/Disciplina.exe</outfile>
+  <jar>DISCIPLINA_ROOT/dist/app/Disciplina.jar</jar>
+  <errTitle>Disciplina</errTitle>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>https://adoptium.net/</downloadUrl>
+  <supportUrl>https://adoptium.net/</supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>DISCIPLINA_ROOT/src/main/resources/images/iconAppReal.ico</icon>
+  <classPath>
+    <mainClass>application.Launcher</mainClass>
+    <cp>Disciplina.jar</cp>
+    <cp>lib/*</cp>
+  </classPath>
+  <singleInstance>
+    <mutexName>DisciplinaSingleInstance</mutexName>
+    <windowTitle>Disciplina</windowTitle>
+  </singleInstance>
+  <jre>
+    <path>runtime</path>
+    <bundledJre64Bit>true</bundledJre64Bit>
+    <runtimeBits>64/32</runtimeBits>
+    <minVersion>21</minVersion>
+  </jre>
+</launch4jConfig>

@@ -37,12 +37,12 @@ public class DashboardRectorController {
 
     @FXML
     void clickAyuda(ActionEvent event) {
-
+        ManagerView.cargarCentro(contenedor, Paths.EN_CONSTRUCCION);
     }
 
     @FXML
     void clickConfig(ActionEvent event) {
-
+        ManagerView.cargarCentro(contenedor, Paths.EN_CONSTRUCCION);
     }
 
     @FXML
@@ -57,7 +57,7 @@ public class DashboardRectorController {
 
     @FXML
     void clickInicio(ActionEvent event) {
-
+        ManagerView.cargarCentro(contenedor, Paths.INICIO_RECTOR);
     }
 
     @FXML
@@ -70,6 +70,11 @@ public class DashboardRectorController {
         if(Alertas.mostrarConfirmacion("¿Estás seguro que deseas cerrar sesión?")){
             ManagerView.cargarVista(contenedorPrincipal, Paths.LOGIN);
         }
+    }
+
+    @FXML
+    void initialize() {
+        ManagerView.cargarCentro(contenedor, Paths.INICIO_RECTOR);
     }
 
 }
