@@ -24,7 +24,7 @@ public class App extends Application {
             scene.getStylesheets().add(style);
         }
 
-        primaryStage.setTitle("Disciplina - Login");
+        primaryStage.setTitle("Disciplina+");
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.show();
