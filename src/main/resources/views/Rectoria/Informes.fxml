@@ -32,7 +32,7 @@
                         </Label>
 
                         <!-- Descripción -->
-                        <Label styleClass="descripcion-seccion" text="Genere reportes PDF de faltas disciplinarias con filtros por estudiante, tipo de falta y caso." wrapText="true">
+                        <Label styleClass="descripcion-seccion" text="Genere reportes PDF de faltas disciplinarias por estudiante, evolución mensual y comparativos entre años." wrapText="true">
                             <font><Font name="Roboto Regular" size="16.0" /></font>
                         </Label>
 
@@ -63,6 +63,12 @@
 
                                         <Label fx:id="lblCaso" managed="false" minWidth="70.0" styleClass="label-filtro" text="Caso:" visible="false" />
                                         <ComboBox fx:id="cbCaso" managed="false" prefWidth="260.0" promptText="Todos los casos" styleClass="combo-filtro" visible="false" />
+
+                                        <Label fx:id="lblAnio1" managed="false" minWidth="65.0" styleClass="label-filtro" text="Año 1:" visible="false" />
+                                        <ComboBox fx:id="cbAnio1" managed="false" prefWidth="120.0" promptText="Año 1" styleClass="combo-filtro" visible="false" />
+
+                                        <Label fx:id="lblAnio2" managed="false" minWidth="65.0" styleClass="label-filtro" text="Año 2:" visible="false" />
+                                        <ComboBox fx:id="cbAnio2" managed="false" prefWidth="120.0" promptText="Año 2" styleClass="combo-filtro" visible="false" />
                                     </children>
                                 </HBox>
 

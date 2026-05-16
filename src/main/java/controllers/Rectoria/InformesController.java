@@ -13,6 +13,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import models.Estudiante;
+import reports.generators.InformeComparativoAniosGenerator;
+import reports.generators.InformeEvolucionMensualGenerator;
 import reports.generators.InformeFaltasEstudianteGenerator;
 import reports.generators.InformeFaltasGeneralGenerator;
 import reports.models.ReportConfig;
@@ -39,6 +41,10 @@ public class InformesController implements Initializable {
     @FXML private ComboBox<String> cbTipoFalta;
     @FXML private Label            lblCaso;
     @FXML private ComboBox<Caso>   cbCaso;
+    @FXML private Label            lblAnio1;
+    @FXML private ComboBox<Integer> cbAnio1;
+    @FXML private Label            lblAnio2;
+    @FXML private ComboBox<Integer> cbAnio2;
 
     // ───── Fechas ─────
     @FXML private DatePicker dpFechaInicio;
@@ -78,6 +84,8 @@ public class InformesController implements Initializable {
     // ───── Tipos de reporte ─────
     private static final String TIPO_GENERAL           = "Informe General";
     private static final String TIPO_FALTAS_ESTUDIANTE = "Faltas por Estudiante";
+    private static final String TIPO_EVOLUCION_MENSUAL = "Evolución mensual";
+    private static final String TIPO_COMPARATIVO_ANIOS = "Comparativo entre años";
 
     // ───── Estado autocompletado estudiante ─────
     private final List<Estudiante> cacheEstudiantes          = new ArrayList<>();
@@ -97,12 +105,13 @@ public class InformesController implements Initializable {
         cargarTiposDeReporte();
         cargarEstudiantes();
         cargarCasos();
+        cargarAniosComparativos();
         cargarTiposFalta();
         configurarAutocompletadoEstudiante();
 
         cbTipoReporte.valueProperty().addListener((obs, oldVal, newVal) -> actualizarFiltrosVisibles(newVal));
 
-        cargarDatos(null, null, null, null, null);
+        cargarVistaPrevia();
     }
 
     private void configurarColumnas() {
@@ -122,7 +131,7 @@ public class InformesController implements Initializable {
 
     private void cargarTiposDeReporte() {
         cbTipoReporte.getItems().clear();
-        cbTipoReporte.getItems().addAll(TIPO_GENERAL, TIPO_FALTAS_ESTUDIANTE);
+        cbTipoReporte.getItems().addAll(TIPO_GENERAL, TIPO_FALTAS_ESTUDIANTE, TIPO_EVOLUCION_MENSUAL, TIPO_COMPARATIVO_ANIOS);
         cbTipoReporte.setValue(TIPO_GENERAL);
     }
 
@@ -136,6 +145,19 @@ public class InformesController implements Initializable {
         List<Caso> casos = casoDAO.obtenerTodos();
         cbCaso.getItems().clear();
         cbCaso.getItems().addAll(casos);
+    }
+
+    private void cargarAniosComparativos() {
+        List<Integer> anios = faltaDAO.obtenerAniosRegistrados();
+        cbAnio1.getItems().clear();
+        cbAnio2.getItems().clear();
+        cbAnio1.getItems().addAll(anios);
+        cbAnio2.getItems().addAll(anios);
+
+        if (!anios.isEmpty()) {
+            cbAnio1.getSelectionModel().select(anios.size() >= 2 ? anios.size() - 2 : 0);
+            cbAnio2.getSelectionModel().select(anios.size() - 1);
+        }
     }
 
     private void cargarTiposFalta() {
@@ -207,21 +229,38 @@ public class InformesController implements Initializable {
 
     private void actualizarFiltrosVisibles(String tipo) {
         boolean esEstudiante = TIPO_FALTAS_ESTUDIANTE.equals(tipo);
+        boolean esEvolucion   = TIPO_EVOLUCION_MENSUAL.equals(tipo);
+        boolean esComparativo = TIPO_COMPARATIVO_ANIOS.equals(tipo);
 
         setVisible(lblEstudiante, txtEstudiante, esEstudiante);
         setVisible(lblTipoFalta,  cbTipoFalta,   esEstudiante);
-        setVisible(lblCaso,       cbCaso,         esEstudiante);
+        setVisible(lblCaso,       cbCaso,         esEstudiante || esComparativo);
+        setVisible(lblAnio1,      cbAnio1,        esComparativo);
+        setVisible(lblAnio2,      cbAnio2,        esComparativo);
+        setVisible(dpFechaInicio, esEstudiante || esEvolucion || TIPO_GENERAL.equals(tipo));
+        setVisible(dpFechaFin,    esEstudiante || esEvolucion || TIPO_GENERAL.equals(tipo));
 
-        lblDatosTabla.setText(TIPO_GENERAL.equals(tipo)
-                ? "Vista previa — Informe General"
-                : "Faltas por Estudiante");
+        if (TIPO_GENERAL.equals(tipo)) {
+            lblDatosTabla.setText("Vista previa — Informe General");
+        } else if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
+            lblDatosTabla.setText("Faltas por Estudiante");
+        } else if (TIPO_EVOLUCION_MENSUAL.equals(tipo)) {
+            lblDatosTabla.setText("Evolución mensual de faltas");
+        } else {
+            lblDatosTabla.setText("Comparativo entre años");
+        }
 
-        cargarDatos(null, null, null, null, null);
+        cargarVistaPrevia();
     }
 
     private void setVisible(Label label, Control control, boolean visible) {
         label.setVisible(visible);
         label.setManaged(visible);
+        control.setVisible(visible);
+        control.setManaged(visible);
+    }
+
+    private void setVisible(Control control, boolean visible) {
         control.setVisible(visible);
         control.setManaged(visible);
     }
@@ -235,6 +274,35 @@ public class InformesController implements Initializable {
         List<FaltaConsultaRow> filas = faltaDAO.consultarFaltas(
                 idEstudiante, fechaDesde, fechaHasta, tipoFalta, idCaso, null
         );
+        datosCargados.setAll(filas);
+        actualizarResumen(filas);
+    }
+
+    private void cargarVistaPrevia() {
+        String tipo = cbTipoReporte.getValue();
+
+        if (TIPO_COMPARATIVO_ANIOS.equals(tipo)) {
+            cargarDatosComparativo();
+            return;
+        }
+
+        Integer idEstudiante = estudianteSeleccionado != null ? estudianteSeleccionado.getId() : null;
+        String fechaDesde = dpFechaInicio.getValue() != null ? dpFechaInicio.getValue().toString() : null;
+        String fechaHasta = dpFechaFin.getValue() != null ? dpFechaFin.getValue().toString() : null;
+
+        Integer tipoFalta = null;
+        Integer idCaso = null;
+
+        if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
+            tipoFalta = tipoFaltaSeleccionado();
+            idCaso = idCasoSeleccionado();
+        }
+
+        cargarDatos(idEstudiante, fechaDesde, fechaHasta, tipoFalta, idCaso);
+    }
+
+    private void cargarDatosComparativo() {
+        List<FaltaConsultaRow> filas = faltaDAO.obtenerFaltasComparativa(idCasoSeleccionado());
         datosCargados.setAll(filas);
         actualizarResumen(filas);
     }
@@ -261,10 +329,7 @@ public class InformesController implements Initializable {
 
     @FXML
     void clickFiltrar(ActionEvent event) {
-        Integer idEstudiante = estudianteSeleccionado != null ? estudianteSeleccionado.getId() : null;
-        String fechaDesde    = dpFechaInicio.getValue() != null ? dpFechaInicio.getValue().toString() : null;
-        String fechaHasta    = dpFechaFin.getValue()    != null ? dpFechaFin.getValue().toString()    : null;
-        cargarDatos(idEstudiante, fechaDesde, fechaHasta, tipoFaltaSeleccionado(), idCasoSeleccionado());
+        cargarVistaPrevia();
     }
 
     @FXML
@@ -273,9 +338,11 @@ public class InformesController implements Initializable {
         limpiarSeleccionEstudiante();
         cbTipoFalta.setValue(null);
         cbCaso.setValue(null);
+        cbAnio1.setValue(null);
+        cbAnio2.setValue(null);
         dpFechaInicio.setValue(null);
         dpFechaFin.setValue(null);
-        cargarDatos(null, null, null, null, null);
+        cargarVistaPrevia();
     }
 
     @FXML
@@ -293,6 +360,10 @@ public class InformesController implements Initializable {
             generarInformeGeneral();
         } else if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
             generarInformeFaltasEstudiante();
+        } else if (TIPO_EVOLUCION_MENSUAL.equals(tipo)) {
+            generarInformeEvolucionMensual();
+        } else if (TIPO_COMPARATIVO_ANIOS.equals(tipo)) {
+            generarInformeComparativoAnios();
         }
     }
 
@@ -325,6 +396,48 @@ public class InformesController implements Initializable {
                 estudianteSeleccionado,
                 nombreCaso,
                 tipoFaltaSeleccionado()
+        ).generar();
+    }
+
+    private void generarInformeEvolucionMensual() {
+        ReportConfig config = new ReportConfig();
+        config.setFechaInicio(dpFechaInicio.getValue());
+        config.setFechaFin(dpFechaFin.getValue());
+        config.setIncluirTablas(chkIncluirTablas.isSelected());
+
+        new InformeEvolucionMensualGenerator(
+                config,
+                "Informe_Evolucion_Mensual_" + LocalDate.now() + ".pdf"
+        ).generar();
+    }
+
+    private void generarInformeComparativoAnios() {
+        Integer anio1 = cbAnio1.getValue();
+        Integer anio2 = cbAnio2.getValue();
+
+        if (anio1 == null || anio2 == null) {
+            Alertas.mostrarError("Seleccione dos años para generar el comparativo.");
+            return;
+        }
+
+        if (anio1.equals(anio2)) {
+            Alertas.mostrarError("Los dos años del comparativo deben ser diferentes.");
+            return;
+        }
+
+        ReportConfig config = new ReportConfig();
+        config.setIncluirTablas(chkIncluirTablas.isSelected());
+        config.setIdCaso(idCasoSeleccionado());
+        config.setAnioComparativo1(anio1);
+        config.setAnioComparativo2(anio2);
+
+        Caso casoSel = cbCaso.getValue();
+        String nombreCaso = casoSel != null ? casoSel.getNombreCaso() : null;
+
+        new InformeComparativoAniosGenerator(
+                config,
+                "Informe_Comparativo_Anios_" + LocalDate.now() + ".pdf",
+                nombreCaso
         ).generar();
     }
 

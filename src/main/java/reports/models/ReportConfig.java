@@ -23,6 +23,9 @@ public class ReportConfig {
     private String tipoReporte;
     private int idEstudiante;
     private int grado;
+    private Integer idCaso;
+    private Integer anioComparativo1;
+    private Integer anioComparativo2;
     private boolean incluirTablas = true;
 
     public ReportConfig() {}
@@ -46,6 +49,15 @@ public class ReportConfig {
 
     public int getGrado() { return grado; }
     public void setGrado(int grado) { this.grado = grado; }
+
+    public Integer getIdCaso() { return idCaso; }
+    public void setIdCaso(Integer idCaso) { this.idCaso = idCaso; }
+
+    public Integer getAnioComparativo1() { return anioComparativo1; }
+    public void setAnioComparativo1(Integer anioComparativo1) { this.anioComparativo1 = anioComparativo1; }
+
+    public Integer getAnioComparativo2() { return anioComparativo2; }
+    public void setAnioComparativo2(Integer anioComparativo2) { this.anioComparativo2 = anioComparativo2; }
 
     public boolean isIncluirTablas() { return incluirTablas; }
     public void setIncluirTablas(boolean incluirTablas) { this.incluirTablas = incluirTablas; }
