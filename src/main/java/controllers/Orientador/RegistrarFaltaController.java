@@ -329,6 +329,7 @@ public class RegistrarFaltaController {
         falta.setTipoFalta(comboFaltaTipo.getValue());
         falta.setDescargo(normalizarTextoOpcional(txtDescargo.getText()));
         falta.setAccionRestaurativa(normalizarTextoOpcional(txtAccionRestaurativa.getText()));
+        falta.setGradoEstudiante(estudianteSeleccionado.getGrado());  // Registrar grado en este momento
         return falta;
     }
 

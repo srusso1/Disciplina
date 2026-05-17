@@ -19,6 +19,8 @@ public class Paths {
     // RECTOR
     public static final String ESTADISTICAS = "/views/Rectoria/Estadisticas.fxml";
     public static final String INFORMES     = "/views/Rectoria/Informes.fxml";
+    public static final String CONFIGURACION = "/views/Rectoria/Configuracion.fxml";
     public static final String EN_CONSTRUCCION = "/views/Rectoria/EnConstruccion.fxml";
     public static final String INICIO_RECTOR = "/views/Rectoria/InicioRector.fxml";
+    public static final String AYUDA = "/views/Rectoria/Ayuda.fxml";
 }

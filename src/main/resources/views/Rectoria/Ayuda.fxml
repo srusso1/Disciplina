@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane styleClass="main-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.Rectoria.AyudaController">
+    <stylesheets>
+        <String fx:value="/styles/Orientador/RegistrarFaltaStyle.css" />
+    </stylesheets>
+
+    <children>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox spacing="24.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+
+                    <children>
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label styleClass="titulo-seccion" text="Ayuda y actualizaciones">
+                                    <font>
+                                        <Font name="Roboto Medium" size="32.0" />
+                                    </font>
+                                </Label>
+                                <Label styleClass="descripcion-seccion" text="Consulta información de la aplicación y gestiona las actualizaciones disponibles." wrapText="true">
+                                    <font>
+                                        <Font name="Roboto Regular" size="14.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15.0" styleClass="form-card">
+                            <padding>
+                                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="form-section-title" text="Información de la aplicación" />
+                                <Label fx:id="lblVersionActual" styleClass="descripcion-seccion" text="Cargando..." wrapText="true">
+                                    <font>
+                                        <Font name="Roboto Regular" size="13.0" />
+                                    </font>
+                                </Label>
+                                <Button onAction="#clickAcercaDe" styleClass="btn-primary" text="Acerca de Disciplina" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15.0" styleClass="form-card">
+                            <padding>
+                                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="form-section-title" text="Actualizaciones" />
+                                <Label styleClass="descripcion-seccion" text="Busca nuevas versiones de Disciplina y actualiza la aplicación a la última versión disponible." wrapText="true">
+                                    <font>
+                                        <Font name="Roboto Regular" size="13.0" />
+                                    </font>
+                                </Label>
+                                <Button onAction="#clickBuscarActualizaciones" styleClass="btn-success" text="Buscar actualizaciones" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="15.0" styleClass="form-card">
+                            <padding>
+                                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="form-section-title" text="Configuración de actualizaciones" />
+                                <Label styleClass="descripcion-seccion" text="Las actualizaciones automáticas se verifican al iniciar la aplicación. Puedes personalizar esta configuración en el archivo de propiedades ubicado en:" wrapText="true">
+                                    <font>
+                                        <Font name="Roboto Regular" size="13.0" />
+                                    </font>
+                                </Label>
+                                <Label styleClass="descripcion-seccion" text="LOCALAPPDATA%\Disciplina\config\updates.properties" wrapText="true">
+                                    <font>
+                                        <Font name="Roboto Mono" size="12.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>
+

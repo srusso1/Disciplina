@@ -17,6 +17,7 @@ import reports.generators.InformeComparativoAniosGenerator;
 import reports.generators.InformeEvolucionMensualGenerator;
 import reports.generators.InformeFaltasEstudianteGenerator;
 import reports.generators.InformeFaltasGeneralGenerator;
+import reports.generators.InformeFaltasPorGradoGenerator;
 import reports.models.ReportConfig;
 import utils.Alertas;
 import utils.BusquedaSugerencias;
@@ -84,6 +85,7 @@ public class InformesController implements Initializable {
     // ───── Tipos de reporte ─────
     private static final String TIPO_GENERAL           = "Informe General";
     private static final String TIPO_FALTAS_ESTUDIANTE = "Faltas por Estudiante";
+    private static final String TIPO_FALTAS_POR_GRADO  = "Faltas por Grado";
     private static final String TIPO_EVOLUCION_MENSUAL = "Evolución mensual";
     private static final String TIPO_COMPARATIVO_ANIOS = "Comparativo entre años";
 
@@ -131,7 +133,7 @@ public class InformesController implements Initializable {
 
     private void cargarTiposDeReporte() {
         cbTipoReporte.getItems().clear();
-        cbTipoReporte.getItems().addAll(TIPO_GENERAL, TIPO_FALTAS_ESTUDIANTE, TIPO_EVOLUCION_MENSUAL, TIPO_COMPARATIVO_ANIOS);
+        cbTipoReporte.getItems().addAll(TIPO_GENERAL, TIPO_FALTAS_ESTUDIANTE, TIPO_FALTAS_POR_GRADO, TIPO_EVOLUCION_MENSUAL, TIPO_COMPARATIVO_ANIOS);
         cbTipoReporte.setValue(TIPO_GENERAL);
     }
 
@@ -229,7 +231,8 @@ public class InformesController implements Initializable {
 
     private void actualizarFiltrosVisibles(String tipo) {
         boolean esEstudiante = TIPO_FALTAS_ESTUDIANTE.equals(tipo);
-        boolean esEvolucion   = TIPO_EVOLUCION_MENSUAL.equals(tipo);
+        boolean esPorGrado   = TIPO_FALTAS_POR_GRADO.equals(tipo);
+        boolean esEvolucion  = TIPO_EVOLUCION_MENSUAL.equals(tipo);
         boolean esComparativo = TIPO_COMPARATIVO_ANIOS.equals(tipo);
 
         setVisible(lblEstudiante, txtEstudiante, esEstudiante);
@@ -237,13 +240,15 @@ public class InformesController implements Initializable {
         setVisible(lblCaso,       cbCaso,         esEstudiante || esComparativo);
         setVisible(lblAnio1,      cbAnio1,        esComparativo);
         setVisible(lblAnio2,      cbAnio2,        esComparativo);
-        setVisible(dpFechaInicio, esEstudiante || esEvolucion || TIPO_GENERAL.equals(tipo));
-        setVisible(dpFechaFin,    esEstudiante || esEvolucion || TIPO_GENERAL.equals(tipo));
+        setVisible(dpFechaInicio, esEstudiante || esEvolucion || esPorGrado || TIPO_GENERAL.equals(tipo));
+        setVisible(dpFechaFin,    esEstudiante || esEvolucion || esPorGrado || TIPO_GENERAL.equals(tipo));
 
         if (TIPO_GENERAL.equals(tipo)) {
             lblDatosTabla.setText("Vista previa — Informe General");
         } else if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
             lblDatosTabla.setText("Faltas por Estudiante");
+        } else if (TIPO_FALTAS_POR_GRADO.equals(tipo)) {
+            lblDatosTabla.setText("Faltas analizadas por Grado");
         } else if (TIPO_EVOLUCION_MENSUAL.equals(tipo)) {
             lblDatosTabla.setText("Evolución mensual de faltas");
         } else {
@@ -352,7 +357,7 @@ public class InformesController implements Initializable {
             Alertas.mostrarError("Seleccione un tipo de reporte.");
             return;
         }
-        if (!TIPO_GENERAL.equals(tipo) && datosCargados.isEmpty()) {
+        if (!TIPO_GENERAL.equals(tipo) && !TIPO_FALTAS_POR_GRADO.equals(tipo) && !TIPO_EVOLUCION_MENSUAL.equals(tipo) && datosCargados.isEmpty()) {
             Alertas.mostrarError("No hay datos para generar el reporte. Aplique filtros primero.");
             return;
         }
@@ -360,6 +365,8 @@ public class InformesController implements Initializable {
             generarInformeGeneral();
         } else if (TIPO_FALTAS_ESTUDIANTE.equals(tipo)) {
             generarInformeFaltasEstudiante();
+        } else if (TIPO_FALTAS_POR_GRADO.equals(tipo)) {
+            generarInformeFaltasPorGrado();
         } else if (TIPO_EVOLUCION_MENSUAL.equals(tipo)) {
             generarInformeEvolucionMensual();
         } else if (TIPO_COMPARATIVO_ANIOS.equals(tipo)) {
@@ -408,6 +415,18 @@ public class InformesController implements Initializable {
         new InformeEvolucionMensualGenerator(
                 config,
                 "Informe_Evolucion_Mensual_" + LocalDate.now() + ".pdf"
+        ).generar();
+    }
+
+    private void generarInformeFaltasPorGrado() {
+        ReportConfig config = new ReportConfig();
+        config.setFechaInicio(dpFechaInicio.getValue());
+        config.setFechaFin(dpFechaFin.getValue());
+        config.setIncluirTablas(chkIncluirTablas.isSelected());
+
+        new InformeFaltasPorGradoGenerator(
+                config,
+                "Informe_Faltas_Por_Grado_" + LocalDate.now() + ".pdf"
         ).generar();
     }
 

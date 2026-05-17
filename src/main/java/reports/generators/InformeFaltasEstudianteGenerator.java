@@ -155,26 +155,38 @@ public class InformeFaltasEstudianteGenerator extends BaseReportGenerator {
     private void agregarTablaDetallada() {
         pdfBuilder.agregarSeccion("Detalle de Faltas");
 
-        float[] anchos      = {2.5f, 4f, 1.5f, 2f, 3.5f, 2.5f, 3f, 3f, 3f};
-        String[] encabezados = {"Fecha", "Estudiante", "Grado", "Tipo", "Caso",
-                "Lugar", "Docente", "Descargo", "Acción Restaurativa"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        // Tabla compacta para mejor legibilidad; usar encabezado con color
+        float[] anchos      = {2.5f, 3f, 1.5f, 2f, 3f, 2f};
+        String[] encabezados = {"Fecha", "Estudiante", "Grado", "Tipo", "Caso", "Lugar"};
+        com.itextpdf.kernel.colors.Color headerColor = new com.itextpdf.kernel.colors.DeviceRgb(0, 82, 147);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, headerColor);
 
         for (FaltaConsultaRow falta : faltas) {
+            // Nota: los campos largos (descargo/acción) se agregan como anexo numerado
             pdfBuilder.agregarFilaTabla(tabla, new String[]{
                     falta.getFecha(),
                     falta.getEstudiante(),
                     falta.getGrado() + "°",
-                    falta.getTipoFalta(),           // ya viene como "Tipo 1", "Tipo 2", "Tipo 3"
+                    falta.getTipoFalta(),
                     falta.getCaso(),
-                    falta.getLugar(),
-                    falta.getDocente(),
-                    safeStr(falta.getDescargo()),
-                    safeStr(falta.getAccionRestaurativa())
+                    falta.getLugar()
             });
         }
 
         pdfBuilder.agregarTabla(tabla);
+
+        // Anexos: Descragos y acciones restaurativas (si existen)
+        int notaIndex = 1;
+        for (FaltaConsultaRow falta : faltas) {
+            String desc = safeStr(falta.getDescargo());
+            String accion = safeStr(falta.getAccionRestaurativa());
+            if (!desc.isEmpty() || !accion.isEmpty()) {
+                pdfBuilder.agregarSeccion("Anexo " + notaIndex + " — Detalle de la falta: " + falta.getFecha());
+                if (!desc.isEmpty()) pdfBuilder.agregarLineaDetalle("Descargo", desc);
+                if (!accion.isEmpty()) pdfBuilder.agregarLineaDetalle("Acción restaurativa", accion);
+                notaIndex++;
+            }
+        }
     }
 
     /** Distribución de faltas por caso (para informes individuales). */

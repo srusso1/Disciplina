@@ -28,6 +28,10 @@ Source: "..\..\..\dist\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesub
 ; Copia la base de datos inicial a AppData solo si no existe aun
 Source: "..\..\..\dist\app\database\DisciplinaDB.db"; DestDir: "{localappdata}\Disciplina\data"; Flags: ignoreversion onlyifdoesntexist uninsneveruninstall
 
+[Dirs]
+Name: "{app}\updates"
+Name: "{app}\updates\win-x64\stable"
+
 [Icons]
 Name: "{autoprograms}\Disciplina"; Filename: "{app}\Disciplina.exe"
 Name: "{autodesktop}\Disciplina"; Filename: "{app}\Disciplina.exe"; Tasks: desktopicon

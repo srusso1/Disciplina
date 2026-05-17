@@ -83,7 +83,8 @@ public class InformeEvolucionMensualGenerator extends BaseReportGenerator {
 
         float[] anchos = {4f, 2f, 2f};
         String[] encabezados = {"Mes", "Faltas", "% del total"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        com.itextpdf.kernel.colors.Color headerColor = new com.itextpdf.kernel.colors.DeviceRgb(0, 102, 153);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, headerColor);
 
         int total = faltasPorMes.values().stream().mapToInt(Integer::intValue).sum();
         for (Map.Entry<String, Integer> entry : faltasPorMes.entrySet()) {
@@ -93,16 +94,18 @@ public class InformeEvolucionMensualGenerator extends BaseReportGenerator {
                     formatearMes(entry.getKey()),
                     String.valueOf(cantidad),
                     String.format(Locale.US, "%.1f%%", porcentaje)
-            });
+            }, false);
         }
 
+        // Agregar fila TOTAL resaltada
+        pdfBuilder.agregarFilaTabla(tabla, new String[]{"TOTAL", String.valueOf(total), "100.0%"}, true);
         pdfBuilder.agregarTabla(tabla);
     }
 
     private String formatearRangoFechas(String fechaDesde, String fechaHasta) {
         String desde = fechaDesde != null ? fechaDesde.replace('-', '/') : "Sin límite";
         String hasta = fechaHasta != null ? fechaHasta.replace('-', '/') : "Sin límite";
-        return desde + "  →  " + hasta;
+        return desde + "  -  " + hasta;
     }
 
     private String formatearMes(String mesISO) {

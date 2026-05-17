@@ -87,7 +87,9 @@ public class InformeComparativoAniosGenerator extends BaseReportGenerator {
 
         float[] anchos = {4f, 2f, 2f, 2f, 2f};
         String[] encabezados = {"Mes", String.valueOf(anio1), String.valueOf(anio2), "Total", "Variación"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        // Color de encabezado azul oscuro
+        com.itextpdf.kernel.colors.Color headerColor = new com.itextpdf.kernel.colors.DeviceRgb(0, 68, 122);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, headerColor);
 
         int totalAnio1 = 0;
         int totalAnio2 = 0;
@@ -116,7 +118,7 @@ public class InformeComparativoAniosGenerator extends BaseReportGenerator {
                 String.valueOf(totalAnio2),
                 String.valueOf(totalAnio1 + totalAnio2),
                 formatearDiferencia(totalAnio2 - totalAnio1)
-        });
+        }, true);
 
         pdfBuilder.agregarTabla(tabla);
     }

@@ -6,6 +6,8 @@ import database.models.FaltaConsultaRow;
 import reports.models.ReportConfig;
 import utils.Fechas;
 
+import com.itextpdf.kernel.colors.DeviceRgb;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
     private final FaltaDAO faltaDAO;
+    private static final DeviceRgb HEADER_COLOR = new DeviceRgb(0, 82, 147);
+    private static final DeviceRgb TOTAL_ROW_COLOR = new DeviceRgb(230, 240, 255);
 
     // Datos cargados una sola vez para reutilizar en todas las secciones
     private List<FaltaConsultaRow> todasLasFaltas;
@@ -155,7 +159,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
         float[] anchos       = {4f, 3f, 3f};
         String[] encabezados = {"Tipo de Falta", "Cantidad", "Porcentaje"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, HEADER_COLOR);
 
         // Mostrar en orden Tipo 1 → Tipo 2 → Tipo 3
         for (int tipo = 1; tipo <= 3; tipo++) {
@@ -167,6 +171,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
             pdfBuilder.agregarFilaTabla(tabla, new String[]{clave, String.valueOf(cantidad), porcentaje});
         }
 
+        pdfBuilder.agregarFilaTabla(tabla, new String[]{"TOTAL", String.valueOf(total), "100.0%"}, true);
         pdfBuilder.agregarTabla(tabla);
     }
 
@@ -185,7 +190,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
         float[] anchos       = {5f, 2.5f, 2.5f};
         String[] encabezados = {"Caso", "Cantidad", "Porcentaje"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, HEADER_COLOR);
 
         for (Map.Entry<String, Integer> entry : porCaso.entrySet()) {
             String porcentaje = totalCasos > 0
@@ -198,6 +203,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
             });
         }
 
+        pdfBuilder.agregarFilaTabla(tabla, new String[]{"TOTAL", String.valueOf(totalCasos), "100.0%"}, true);
         pdfBuilder.agregarTabla(tabla);
     }
 
@@ -216,7 +222,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
         float[] anchos       = {5f, 2.5f, 2.5f};
         String[] encabezados = {"Lugar", "Cantidad", "Porcentaje"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, HEADER_COLOR);
 
         for (Map.Entry<String, Integer> entry : porLugar.entrySet()) {
             String porcentaje = totalLugares > 0
@@ -229,6 +235,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
             });
         }
 
+        pdfBuilder.agregarFilaTabla(tabla, new String[]{"TOTAL", String.valueOf(totalLugares), "100.0%"}, true);
         pdfBuilder.agregarTabla(tabla);
     }
 
@@ -245,7 +252,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
         float[] anchos       = {4f, 3f};
         String[] encabezados = {"Mes", "Cantidad"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, HEADER_COLOR);
 
         for (Map.Entry<String, Integer> entry : porMes.entrySet()) {
             pdfBuilder.agregarFilaTabla(tabla, new String[]{
@@ -270,7 +277,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
         float[] anchos       = {1.5f, 5f, 2.5f};
         String[] encabezados = {"#", "Estudiante", "Faltas"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, HEADER_COLOR);
 
         int posicion = 1;
         for (Map.Entry<String, Integer> entry : top10.entrySet()) {
@@ -298,7 +305,7 @@ public class InformeFaltasGeneralGenerator extends BaseReportGenerator {
 
         float[] anchos       = {2.5f, 4f, 1.5f, 2f, 3.5f, 2.5f, 3f};
         String[] encabezados = {"Fecha", "Estudiante", "Grado", "Tipo", "Caso", "Lugar", "Docente"};
-        Table tabla = pdfBuilder.crearTabla(anchos, encabezados);
+        Table tabla = pdfBuilder.crearTabla(anchos, encabezados, HEADER_COLOR);
 
         for (FaltaConsultaRow falta : todasLasFaltas) {
             pdfBuilder.agregarFilaTabla(tabla, new String[]{

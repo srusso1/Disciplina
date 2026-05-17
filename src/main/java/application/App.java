@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.kordamp.bootstrapfx.BootstrapFX;
 import utils.Paths;
+import utils.updates.UpdateService;
 
 import java.awt.*;
 import java.io.InputStream;
@@ -34,6 +35,11 @@ public class App extends Application {
         primaryStage.setMaximized(true);
         configurarIconoAplicacion(primaryStage);
         primaryStage.show();
+
+        // Verificar actualizaciones disponibles de forma asincrónica
+        Thread updateThread = new Thread(UpdateService::notificarActualizacionSiExiste);
+        updateThread.setDaemon(true);
+        updateThread.start();
     }
 
     public static void main(String[] args) {

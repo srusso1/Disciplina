@@ -37,12 +37,12 @@ public class DashboardRectorController {
 
     @FXML
     void clickAyuda(ActionEvent event) {
-        ManagerView.cargarCentro(contenedor, Paths.EN_CONSTRUCCION);
+        ManagerView.cargarCentro(contenedor, Paths.AYUDA);
     }
 
     @FXML
     void clickConfig(ActionEvent event) {
-        ManagerView.cargarCentro(contenedor, Paths.EN_CONSTRUCCION);
+        ManagerView.cargarCentro(contenedor, Paths.CONFIGURACION);
     }
 
     @FXML

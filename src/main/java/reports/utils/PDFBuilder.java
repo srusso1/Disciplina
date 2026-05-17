@@ -3,6 +3,8 @@ package reports.utils;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -96,6 +98,18 @@ public class PDFBuilder {
         return this;
     }
 
+    public PDFBuilder agregarSubSeccion(String titulo) {
+        Paragraph p = new Paragraph(titulo)
+                .setFont(fontBold)
+                .setFontSize(12)
+                .setFontColor(ColorConstants.BLACK)
+                .setMarginTop(8)
+                .setMarginBottom(4)
+                .setMarginLeft(10);
+        document.add(p);
+        return this;
+    }
+
     public PDFBuilder agregarLineaDetalle(String etiqueta, String valor) {
         Text t1 = new Text(etiqueta + ": ").setFont(fontBold);
         Text t2 = new Text(valor == null ? "" : valor).setFont(fontNormal);
@@ -179,10 +193,49 @@ public class PDFBuilder {
         return t;
     }
 
+    /**
+     * Crear tabla con color de encabezado personalizado.
+     * headerColor puede ser null para usar el color por defecto.
+     */
+    public Table crearTabla(float[] anchos, String[] encabezados, Color headerColor) {
+        Table t = new Table(UnitValue.createPercentArray(anchos)).useAllAvailableWidth();
+        if (encabezados != null) {
+            for (String e : encabezados) {
+                Cell c = new Cell().add(new Paragraph(e).setFont(fontBold))
+                        .setTextAlignment(TextAlignment.CENTER);
+                if (headerColor != null) {
+                    c.setBackgroundColor(headerColor);
+                    // si el header es oscuro, usar color blanco en el texto
+                    if (headerColor.equals(ColorConstants.DARK_GRAY) || headerColor instanceof DeviceRgb) {
+                        c.setFontColor(ColorConstants.WHITE);
+                    }
+                } else {
+                    c.setBackgroundColor(ColorConstants.LIGHT_GRAY);
+                }
+                t.addHeaderCell(c);
+            }
+        }
+        return t;
+    }
+
     public PDFBuilder agregarFilaTabla(Table tabla, String[] valores) {
         if (tabla == null || valores == null) return this;
         for (String v : valores) {
             Cell c = new Cell().add(new Paragraph(v == null ? "" : v).setFont(fontNormal).setFontSize(10));
+            tabla.addCell(c);
+        }
+        return this;
+    }
+
+    /**
+     * Agrega una fila y si `destacar` es true aplica un fondo ligero para resaltarla.
+     */
+    public PDFBuilder agregarFilaTabla(Table tabla, String[] valores, boolean destacar) {
+        if (tabla == null || valores == null) return this;
+        Color bg = destacar ? new DeviceRgb(230, 240, 255) : null;
+        for (String v : valores) {
+            Cell c = new Cell().add(new Paragraph(v == null ? "" : v).setFont(fontNormal).setFontSize(10));
+            if (bg != null) c.setBackgroundColor(bg);
             tabla.addCell(c);
         }
         return this;

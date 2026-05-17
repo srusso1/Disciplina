@@ -10,14 +10,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 public class FaltaDAO {
 
     public boolean registrar(Falta falta) {
-        String sql = "INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, grado_estudiante, fecha) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
 
@@ -33,7 +35,8 @@ public class FaltaDAO {
             pstmt.setInt(5, falta.getTipoFalta());
             pstmt.setString(6, falta.getDescargo());
             pstmt.setString(7, falta.getAccionRestaurativa());
-            pstmt.setString(8, Fechas.fechaActualISO());
+            pstmt.setInt(8, falta.getGradoEstudiante());
+            pstmt.setString(9, Fechas.fechaActualISO());
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -63,7 +66,7 @@ public class FaltaDAO {
         StringBuilder sql = new StringBuilder(
                 "SELECT f.id, f.id_lugar, f.fecha, e.id AS id_estudiante, " +
                         "TRIM(COALESCE(e.nombre_1,'') || ' ' || COALESCE(e.nombre_2,'') || ' ' || COALESCE(e.apellido_1,'') || ' ' || COALESCE(e.apellido_2,'')) AS estudiante, " +
-                        "e.grado, e.identificacion, f.tipo_falta, c.nombre_caso AS caso, l.nombre_lugar AS lugar, " +
+                        "f.grado_estudiante, e.identificacion, f.tipo_falta, c.nombre_caso AS caso, l.nombre_lugar AS lugar, " +
                         "TRIM(COALESCE(d.nombre_1,'') || ' ' || COALESCE(d.nombre_2,'') || ' ' || COALESCE(d.apellido_1,'') || ' ' || COALESCE(d.apellido_2,'')) AS docente, " +
                         "COALESCE(f.descargo, '') AS descargo, COALESCE(f.accion_restaurativa, '') AS accion_restaurativa " +
                         "FROM faltas f " +
@@ -115,7 +118,7 @@ public class FaltaDAO {
                         rs.getInt("id_lugar"),
                         fechaUI,
                         rs.getString("estudiante"),
-                        rs.getInt("grado"),
+                        rs.getInt("grado_estudiante"),
                         rs.getString("identificacion"),
                         "Tipo " + rs.getInt("tipo_falta"),
                         rs.getString("caso"),
@@ -391,12 +394,12 @@ public class FaltaDAO {
     public Map<Integer, Integer> obtenerFaltasPorGrado(String fechaDesde, String fechaHasta) {
         Map<Integer, Integer> resultado = new LinkedHashMap<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT e.grado, COUNT(*) as cantidad FROM faltas f " +
-                "INNER JOIN estudiantes e ON e.id = f.id_estudiante WHERE 1 = 1"
+                "SELECT f.grado_estudiante, COUNT(*) as cantidad FROM faltas f " +
+                "WHERE 1 = 1"
         );
         if (fechaDesde != null && !fechaDesde.isEmpty()) sql.append(" AND f.fecha >= ?");
         if (fechaHasta != null && !fechaHasta.isEmpty()) sql.append(" AND f.fecha <= ?");
-        sql.append(" GROUP BY e.grado ORDER BY e.grado");
+        sql.append(" GROUP BY f.grado_estudiante ORDER BY f.grado_estudiante");
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -413,10 +416,105 @@ public class FaltaDAO {
 
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                resultado.put(rs.getInt("grado"), rs.getInt("cantidad"));
+                resultado.put(rs.getInt("grado_estudiante"), rs.getInt("cantidad"));
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener faltas por grado: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+        return resultado;
+    }
+
+    /**
+     * Obtiene faltas por grado con cantidad total y estudiantes únicos afectados.
+     * Retorna Map<Integer grado, Integer[] {cantidad, estudiantesUnicos}>
+     */
+    public Map<Integer, Integer[]> obtenerFaltasPorGradoConEstudiantes(String fechaDesde, String fechaHasta) {
+        Map<Integer, Integer[]> resultado = new LinkedHashMap<>();
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT f.grado_estudiante, COUNT(*) as cantidad, COUNT(DISTINCT f.id_estudiante) as estudiantes_unicos " +
+                "FROM faltas f WHERE 1 = 1"
+        );
+        if (fechaDesde != null && !fechaDesde.isEmpty()) sql.append(" AND f.fecha >= ?");
+        if (fechaHasta != null && !fechaHasta.isEmpty()) sql.append(" AND f.fecha <= ?");
+        sql.append(" GROUP BY f.grado_estudiante ORDER BY f.grado_estudiante");
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return resultado;
+
+            pstmt = conn.prepareStatement(sql.toString());
+            int idx = 1;
+            if (fechaDesde != null && !fechaDesde.isEmpty()) pstmt.setString(idx++, fechaDesde);
+            if (fechaHasta != null && !fechaHasta.isEmpty()) pstmt.setString(idx++, fechaHasta);
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int grado = rs.getInt("grado_estudiante");
+                int cantidad = rs.getInt("cantidad");
+                int estudiantesUnicos = rs.getInt("estudiantes_unicos");
+                resultado.put(grado, new Integer[]{cantidad, estudiantesUnicos});
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener faltas por grado con estudiantes: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+        return resultado;
+    }
+
+    /**
+     * Obtiene distribuión de cases por grado específico.
+     */
+    public Map<String, Integer> obtenerFaltasPorCasoEnGrado(int grado, String fechaDesde, String fechaHasta) {
+        Map<String, Integer> resultado = new LinkedHashMap<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT c.nombre_caso, COUNT(*) as cantidad FROM faltas f " +
+                "INNER JOIN casos c ON c.id = f.id_caso " +
+                "WHERE f.grado_estudiante = ?"
+        );
+        if (fechaDesde != null && !fechaDesde.isEmpty()) sql.append(" AND f.fecha >= ?");
+        if (fechaHasta != null && !fechaHasta.isEmpty()) sql.append(" AND f.fecha <= ?");
+        sql.append(" GROUP BY f.id_caso ORDER BY cantidad DESC");
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return resultado;
+
+            pstmt = conn.prepareStatement(sql.toString());
+            int idx = 1;
+            pstmt.setInt(idx++, grado);
+            if (fechaDesde != null && !fechaDesde.isEmpty()) pstmt.setString(idx++, fechaDesde);
+            if (fechaHasta != null && !fechaHasta.isEmpty()) pstmt.setString(idx++, fechaHasta);
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                resultado.put(rs.getString("nombre_caso"), rs.getInt("cantidad"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener faltas por caso en grado: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
@@ -648,7 +746,7 @@ public class FaltaDAO {
                      "fh.cantidad, c.nombre_caso, fh.id_caso " +
                      "FROM faltas_historico fh " +
                      "INNER JOIN casos c ON c.id = fh.id_caso " +
-                     "WHERE 1 = 1";
+                     "WHERE fh.cantidad > 0";
 
         if (idCaso != null) {
             sql += " AND fh.id_caso = ?";
@@ -752,7 +850,7 @@ public class FaltaDAO {
                      "    fh.cantidad AS cantidad_falta " +
                      "FROM faltas_historico fh " +
                      "INNER JOIN casos c ON c.id = fh.id_caso " +
-                     "WHERE 1 = 1 " +
+                     "WHERE fh.cantidad > 0 " +
                      (idCaso != null ? "AND fh.id_caso = ? " : "") +
                      "ORDER BY fecha DESC";
 
@@ -817,66 +915,23 @@ public class FaltaDAO {
     }
 
     /**
-     * Obtiene conteo de faltas por mes y año para comparativas
-     * Combina datos de tabla faltas (contidos por fecha) con faltas_historico (agregados)
+     * Obtiene conteo por mes/anio para comparativas sin doble conteo.
+     * Regla: si existe historico para una clave (id_caso, anio, mes), ese valor prevalece.
      */
     public Map<Integer, Map<Integer, Integer>> obtenerConteoPorMesYAnio(Integer idCaso) {
         Map<Integer, Map<Integer, Integer>> resultado = new HashMap<>();
+        Map<String, Integer> conteoPorCasoMesAnio = new HashMap<>();
+        Set<String> clavesConHistorico = new HashSet<>();
 
-        // Procesar datos de tabla faltas (contar por mes/año de fecha registrada)
-        String sqlFaltas = "SELECT " +
-                          "    CAST(strftime('%m', f.fecha) AS INTEGER) AS mes, " +
-                          "    CAST(strftime('%Y', f.fecha) AS INTEGER) AS anio, " +
-                          "    COUNT(*) AS cantidad " +
-                          "FROM faltas f " +
-                          "WHERE f.fecha IS NOT NULL " +
-                          (idCaso != null ? "AND f.id_caso = ? " : "") +
-                          "GROUP BY CAST(strftime('%Y', f.fecha) AS INTEGER), CAST(strftime('%m', f.fecha) AS INTEGER)";
+        String sqlHistorico = "SELECT fh.id_caso, fh.mes, fh.año AS anio, SUM(fh.cantidad) AS cantidad " +
+                "FROM faltas_historico fh " +
+                "WHERE fh.cantidad > 0 " +
+                (idCaso != null ? "AND fh.id_caso = ? " : "") +
+                "GROUP BY fh.id_caso, fh.año, fh.mes";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
-        try {
-            conn = ConexionSQLite.conectar();
-            if (conn == null) return resultado;
-
-            pstmt = conn.prepareStatement(sqlFaltas);
-            if (idCaso != null) {
-                pstmt.setInt(1, idCaso);
-            }
-
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                int mes = rs.getInt("mes");
-                int anio = rs.getInt("anio");
-                int cantidad = rs.getInt("cantidad");
-
-                if (!resultado.containsKey(mes)) {
-                    resultado.put(mes, new HashMap<>());
-                }
-                resultado.get(mes).put(anio, cantidad);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener conteo de faltas: " + e.getMessage());
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos: " + e.getMessage());
-            }
-            ConexionSQLite.cerrarConexion();
-        }
-
-        // Procesar datos de tabla faltas_historico (usar cantidad directa)
-        String sqlHistorico = "SELECT " +
-                             "    fh.mes, " +
-                             "    fh.año AS anio, " +
-                             "    fh.cantidad " +
-                             "FROM faltas_historico fh " +
-                             "WHERE 1 = 1 " +
-                             (idCaso != null ? "AND fh.id_caso = ? " : "");
 
         try {
             conn = ConexionSQLite.conectar();
@@ -889,26 +944,87 @@ public class FaltaDAO {
 
             rs = pstmt.executeQuery();
             while (rs.next()) {
+                int caso = rs.getInt("id_caso");
                 int mes = rs.getInt("mes");
                 int anio = rs.getInt("anio");
                 int cantidad = rs.getInt("cantidad");
 
-                if (!resultado.containsKey(mes)) {
-                    resultado.put(mes, new HashMap<>());
-                }
-                int actual = resultado.get(mes).getOrDefault(anio, 0);
-                resultado.get(mes).put(anio, actual + cantidad);
+                String clave = caso + "-" + anio + "-" + mes;
+                clavesConHistorico.add(clave);
+                conteoPorCasoMesAnio.put(clave, cantidad);
             }
         } catch (SQLException e) {
-            System.err.println("Error al obtener conteo histórico: " + e.getMessage());
+            System.err.println("Error al obtener conteo historico: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
             } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos histórico: " + e.getMessage());
+                System.err.println("Error al cerrar recursos historico: " + e.getMessage());
             }
             ConexionSQLite.cerrarConexion();
+        }
+
+        String sqlFaltas = "SELECT f.id_caso, " +
+                "CAST(strftime('%m', f.fecha) AS INTEGER) AS mes, " +
+                "CAST(strftime('%Y', f.fecha) AS INTEGER) AS anio, " +
+                "COUNT(*) AS cantidad " +
+                "FROM faltas f " +
+                "WHERE f.fecha IS NOT NULL " +
+                (idCaso != null ? "AND f.id_caso = ? " : "") +
+                "GROUP BY f.id_caso, CAST(strftime('%Y', f.fecha) AS INTEGER), CAST(strftime('%m', f.fecha) AS INTEGER)";
+
+        try {
+            conn = ConexionSQLite.conectar();
+            if (conn == null) return resultado;
+
+            pstmt = conn.prepareStatement(sqlFaltas);
+            if (idCaso != null) {
+                pstmt.setInt(1, idCaso);
+            }
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int caso = rs.getInt("id_caso");
+                int mes = rs.getInt("mes");
+                int anio = rs.getInt("anio");
+                int cantidad = rs.getInt("cantidad");
+
+                String clave = caso + "-" + anio + "-" + mes;
+                if (clavesConHistorico.contains(clave)) {
+                    continue;
+                }
+
+                conteoPorCasoMesAnio.merge(clave, cantidad, Integer::sum);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener conteo de faltas: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos de faltas: " + e.getMessage());
+            }
+            ConexionSQLite.cerrarConexion();
+        }
+
+        for (Map.Entry<String, Integer> entry : conteoPorCasoMesAnio.entrySet()) {
+            String[] partes = entry.getKey().split("-");
+            if (partes.length != 3) continue;
+
+            int anio;
+            int mes;
+            try {
+                anio = Integer.parseInt(partes[1]);
+                mes = Integer.parseInt(partes[2]);
+            } catch (NumberFormatException e) {
+                continue;
+            }
+
+            resultado.putIfAbsent(mes, new HashMap<>());
+            int actual = resultado.get(mes).getOrDefault(anio, 0);
+            resultado.get(mes).put(anio, actual + entry.getValue());
         }
 
         return resultado;

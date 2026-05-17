@@ -159,13 +159,42 @@ VALUES (1050, 2, 6, 65, 2, 'Agresión verbal en cafetería', 'Taller resolución
 INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
 VALUES (1200, 5, 11, 65, 1, 'Incidente en comedor', 'Vigilancia reforzada', '2026-05-08');
 
--- Total de faltas insertadas: 53 faltas
+-- REGISTROS 2027 - pruebas de comparativo interanual
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (900, 1, 1, 1, 1, 'Discusion en aula', 'Compromiso de respeto', '2027-01-09');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (1050, 2, 2, 65, 2, 'Conflicto en cancha', 'Mediacion con orientacion', '2027-01-18');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (1100, 3, 1, 2, 1, 'Uso de vaper en clase', 'Llamada a acudiente', '2027-02-06');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (786, 5, 1, 1, 2, 'Agresion verbal reiterada', 'Acta y seguimiento', '2027-02-14');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (787, 9, 7, 65, 1, 'Amenaza a companero', 'Intervencion inmediata', '2027-03-04');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (850, 10, 1, 5, 1, 'Comentario discriminatorio', 'Taller de inclusion', '2027-03-12');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (1200, 11, 1, 3, 2, 'Incumplimiento de norma institucional', 'Amonestacion escrita', '2027-04-08');
+
+INSERT INTO faltas (id_estudiante, id_caso, id_lugar, id_docente, tipo_falta, descargo, accion_restaurativa, fecha)
+VALUES (1300, 1, 3, 65, 1, 'Conflicto fuera de la institucion', 'Seguimiento con familia', '2027-04-21');
+
+-- Total de faltas insertadas: 61 faltas
 -- Distribución por mes:
 --   Enero: 5 faltas
 --   Febrero: 8 faltas
 --   Marzo: 12 faltas
 --   Abril: 20 faltas
 --   Mayo: 3 faltas
+--   Enero 2027: 2 faltas
+--   Febrero 2027: 2 faltas
+--   Marzo 2027: 2 faltas
+--   Abril 2027: 2 faltas
 -- Estudiantes involucrados: IDs entre 778-1553 (rango completo solicitado)
 -- Lugares variados: Aula (1), Cancha (2), Fuera (3), Baños (4-5), Cafeterías (6), Zonas laterales (7-8), Pasillos (9-10), Comedor (11), Jardineras (12)
 -- Casos: Diversos (1-11)

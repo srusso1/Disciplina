@@ -9,6 +9,7 @@ public class Falta {
     private int tipoFalta;
     private String descargo;
     private String accionRestaurativa;
+    private int gradoEstudiante;  // Grado del estudiante al momento de registrar la falta
 
     public Falta() {
     }
@@ -22,8 +23,22 @@ public class Falta {
         this.tipoFalta = tipoFalta;
         this.descargo = descargo;
         this.accionRestaurativa = accionRestaurativa;
+        this.gradoEstudiante = 0;
     }
 
+    public Falta(int id, int idEstudiante, int idCaso, int idLugar, int idDocente, int tipoFalta, String descargo, String accionRestaurativa, int gradoEstudiante) {
+        this.id = id;
+        this.idEstudiante = idEstudiante;
+        this.idCaso = idCaso;
+        this.idLugar = idLugar;
+        this.idDocente = idDocente;
+        this.tipoFalta = tipoFalta;
+        this.descargo = descargo;
+        this.accionRestaurativa = accionRestaurativa;
+        this.gradoEstudiante = gradoEstudiante;
+    }
+
+    // ...existing code...
     public int getId() {
         return id;
     }
@@ -86,6 +101,14 @@ public class Falta {
 
     public void setAccionRestaurativa(String accionRestaurativa) {
         this.accionRestaurativa = accionRestaurativa;
+    }
+
+    public int getGradoEstudiante() {
+        return gradoEstudiante;
+    }
+
+    public void setGradoEstudiante(int gradoEstudiante) {
+        this.gradoEstudiante = gradoEstudiante;
     }
 }
 

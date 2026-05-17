@@ -21,9 +21,9 @@ public abstract class BaseReportGenerator {
     public BaseReportGenerator(ReportConfig config, String nombreArchivoSugerido) {
         this.config = config;
         this.rutaArchivo = seleccionarRutaArchivo(nombreArchivoSugerido);
-        if (this.rutaArchivo != null) {
-            this.pdfBuilder = new PDFBuilder(this.rutaArchivo);
-        }
+        // No crear el PDFBuilder en el constructor para evitar crear un archivo
+        // vacío si el proceso de generación se cancela o falla.
+        this.pdfBuilder = null;
     }
 
     private String seleccionarRutaArchivo(String nombreArchivo) {
@@ -53,7 +53,17 @@ public abstract class BaseReportGenerator {
     }
 
     protected boolean puedeGenerar() {
-        return pdfBuilder != null && rutaArchivo != null;
+        // Si hay ruta seleccionada, crear el PDFBuilder de forma perezosa.
+        if (rutaArchivo == null) return false;
+        if (pdfBuilder == null) {
+            try {
+                pdfBuilder = new PDFBuilder(rutaArchivo);
+            } catch (Exception e) {
+                pdfBuilder = null;
+                return false;
+            }
+        }
+        return true;
     }
 
     public abstract void generar();
